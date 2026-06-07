@@ -1,0 +1,1655 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Trading-Cockpit Ko-Performance Masterplan</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ko-Masterplan">
+<meta name="theme-color" content="#0d1117">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiB2aWV3Qm94PSIwIDAgMTgwIDE4MCI+PHJlY3Qgd2lkdGg9IjE4MCIgaGVpZ2h0PSIxODAiIHJ4PSI0MCIgZmlsbD0iIzBkMTExNyIvPjx0ZXh0IHg9IjkwIiB5PSIxMTAiIGZvbnQtZmFtaWx5PSJBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjkwIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI2Q0YWYzNyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+S288L3RleHQ+PHJlY3QgeD0iNDAiIHk9IjEzNSIgd2lkdGg9IjEwMCIgaGVpZ2h0PSI2IiBmaWxsPSIjZDRhZjM3Ii8+PC9zdmc+">
+<style>
+
+  :root{
+    --bg:#0d1117;--panel:#161b22;--panel2:#1c2530;--line:#2a3441;
+    --txt:#e6edf3;--muted:#8b949e;--gold:#d4af37;--green:#3fb950;--red:#f85149;--blue:#58a6ff;--amber:#e3b341;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.55;padding-bottom:54px}
+  header{padding:22px 22px 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#11161d,#0d1117);display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+  header h1{margin:0;font-size:23px;letter-spacing:.4px}
+  header .sub{color:var(--muted);font-size:13px;margin-top:4px;max-width:560px}
+  .gold{color:var(--gold)}
+  .clock-box{text-align:right;flex-shrink:0}
+  .clock-box .ctime{font-size:26px;font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums;letter-spacing:1px}
+  .clock-box .cdate{font-size:12px;color:var(--muted);margin-top:2px;text-transform:capitalize}
+  .clock-box .csession{font-size:11px;margin-top:5px;font-weight:700;padding:3px 9px;border-radius:20px;display:inline-block}
+  .csession.on{background:#23351f;color:var(--green)}
+  .csession.off{background:#2a2330;color:var(--muted)}
+  nav{display:flex;flex-wrap:wrap;gap:6px;padding:12px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(13,17,23,.95);backdrop-filter:blur(6px);z-index:20}
+  nav button{background:var(--panel);color:var(--muted);border:1px solid var(--line);padding:8px 13px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600}
+  nav button:hover{color:var(--txt)}
+  nav button.active{background:var(--gold);color:#1a1a1a;border-color:var(--gold)}
+  main{max-width:1060px;margin:0 auto;padding:24px 18px 30px}
+  section{display:none;animation:fade .22s ease}
+  section.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+  h2{font-size:20px;margin:0 0 4px;border-left:3px solid var(--gold);padding-left:10px}
+  h3{font-size:16px}
+  p.lead{color:var(--muted);margin:4px 0 20px;padding-left:13px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:12px 0}
+  .ok{border-left:3px solid var(--green)}.warn{border-left:3px solid var(--red)}.info{border-left:3px solid var(--blue)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{text-align:left;padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.4px}
+  .win{color:var(--green);font-weight:600}.loss{color:var(--red);font-weight:600}
+  ul,ol{margin:6px 0;padding-left:20px}li{margin:4px 0}
+  .cards{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center}
+  .kpi .v{font-size:23px;font-weight:700}.kpi .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+  .acc{border:1px solid var(--line);border-radius:11px;margin:10px 0;overflow:hidden;background:var(--panel)}
+  .acc>summary{list-style:none;cursor:pointer;padding:14px 16px;font-weight:700;font-size:15px;display:flex;align-items:center;gap:10px;user-select:none}
+  .acc>summary::-webkit-details-marker{display:none}
+  .acc>summary .chev{margin-left:auto;color:var(--muted);transition:transform .2s}
+  .acc[open]>summary .chev{transform:rotate(90deg)}
+  .acc>summary .pill{font-size:10.5px;padding:2px 8px;border-radius:20px;font-weight:700}
+  .pill.now{background:#23351f;color:var(--green)}.pill.later{background:#2d2410;color:var(--amber)}.pill.ref{background:#0f1722;color:var(--blue)}
+  .acc .body{padding:2px 18px 18px;border-top:1px solid var(--line)}
+  .step{display:flex;gap:12px;margin:10px 0}
+  .step .n{flex:0 0 28px;height:28px;border-radius:50%;background:var(--gold);color:#111;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+  .step .b{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;flex:1;font-size:13.5px}
+  .step .b b{color:var(--gold)}
+  .grp{margin:14px 0}
+  .grp h4{margin:0 0 4px;font-size:14px;color:var(--gold);display:flex;justify-content:space-between}
+  .grp h4 .c{font-size:12px;color:var(--muted)}
+  .chk{list-style:none;padding:0;margin:0}
+  .chk li{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line);cursor:pointer}
+  .chk li .box{flex:0 0 20px;height:20px;border:2px solid var(--gold);border-radius:5px;display:flex;align-items:center;justify-content:center;font-weight:700;color:transparent;font-size:13px;margin-top:1px}
+  .chk li.done .box{background:var(--gold);color:#111}
+  .chk li .t{font-size:13.7px}.chk li .h{display:block;font-size:11.5px;color:var(--muted)}
+  .chk li.done .t{text-decoration:line-through;color:var(--muted)}
+  .pflicht{color:var(--red);font-weight:700;font-size:10px;border:1px solid var(--red);border-radius:4px;padding:0 4px;margin-left:6px}
+  .scorebar{position:sticky;top:60px;z-index:10;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .scorebar .big{font-size:22px;font-weight:800}
+  .bar{flex:1;min-width:140px;height:9px;border-radius:6px;background:#0d1117;overflow:hidden}
+  .bar>i{display:block;height:100%;width:0;background:var(--red);transition:.3s}
+  .verdict{font-weight:700}
+  .btn{background:var(--panel2);color:var(--muted);border:1px solid var(--line);padding:7px 13px;border-radius:7px;cursor:pointer;font-size:13px}
+  .btn.gold{background:var(--gold);color:#111;border-color:var(--gold);font-weight:700}
+  .btn.green{background:var(--green);color:#06210f;border-color:var(--green);font-weight:700}
+  .btn.red{background:transparent;color:var(--red);border-color:var(--red)}
+  .calc label{display:block;font-size:12px;color:var(--muted);margin:8px 0 3px}
+  .calc input,.calc select{width:100%;padding:9px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);font-size:14px}
+  .calc .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .res{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:14px;font-size:15px}
+  .res b{color:var(--gold);font-size:20px}
+  .pgrid{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:8px 0}
+  .pcard{display:flex;align-items:center;gap:14px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;flex:1;min-width:240px}
+  .csvg{height:140px;width:auto;flex:0 0 auto}
+  .csvg .up{fill:var(--green);stroke:var(--green)}
+  .csvg .dn{fill:var(--red);stroke:var(--red)}
+  .csvg .wk{stroke:var(--muted);stroke-width:2.5}
+  .csvg .ref-l{stroke:var(--gold);stroke-width:1;stroke-dasharray:3 3;opacity:.7}
+  .csvg .lbl{fill:var(--muted);font-size:11px}
+  .csvg .cap{fill:var(--txt);font-size:12px;font-weight:700;text-anchor:middle}
+  .csvg .up-t{fill:var(--green)}.csvg .dn-t{fill:var(--red)}
+  .pdesc{font-size:13px;flex:1}
+  .quote{font-style:italic;color:var(--gold);border-left:3px solid var(--gold);padding-left:13px;margin:16px 0}
+  .small{font-size:12.5px;color:var(--muted)}
+  .tag{display:inline-block;font-size:11px;padding:2px 8px;border:1px solid var(--line);border-radius:20px;color:var(--muted);margin:2px 4px 2px 0}
+  /* chart patterns grid */
+  .patcat{font-size:15px;font-weight:800;text-align:center;margin:20px 0 10px;padding:8px;border-radius:8px;letter-spacing:.5px}
+  .patcat.bull{background:#15251a;color:var(--green)}
+  .patcat.bear{background:#2a1518;color:var(--red)}
+  .patcat.rev{background:#1a2230;color:var(--blue)}
+  .patgrid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+  .patbox{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center}
+  .patbox svg{width:100%;height:90px}
+  .patbox .pname{font-size:12px;font-weight:700;margin-top:6px}
+  .patbox .ptype{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  .psig-buy{fill:var(--green)}
+  .ppath{stroke:var(--gold);stroke-width:1.6;fill:none;stroke-linejoin:round;stroke-linecap:round}
+  .psig-sell{fill:var(--red)}
+  .pline{stroke:var(--gold);stroke-width:1.5;fill:none}
+  .pdash{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 2;fill:none}
+  .pbar{stroke:var(--txt);stroke-width:2}
+  /* journal */
+  .jform{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+  .jform label{display:block;font-size:11px;color:var(--muted);margin-bottom:3px}
+  .jform input,.jform select,.jform textarea{width:100%;padding:8px;border-radius:7px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);font-size:13px}
+  .jform textarea{grid-column:1/-1;resize:vertical;min-height:42px}
+  /* form-grid + label.fl (Einstellungen) — dunkle Felder wie im Rest, Screenshot-2-Design */
+  .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+  .form-grid.wide{grid-template-columns:1fr}
+  label.fl{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--muted)}
+  label.fl span{font-weight:600;letter-spacing:.3px;text-transform:uppercase;font-size:11px}
+  label.fl input,label.fl select,label.fl textarea{width:100%;padding:9px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);font-size:14px;font-family:inherit}
+  label.fl textarea{resize:vertical;min-height:60px}
+  .jbtns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .jmonth{font-size:14px;font-weight:700;color:var(--gold);margin:18px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--line)}
+  .deltrade{color:var(--red);cursor:pointer;font-weight:700;border:none;background:none;font-size:15px}
+  /* motivation bar */
+  .motbar{position:fixed;bottom:0;left:0;right:0;height:46px;background:linear-gradient(90deg,#11161d,#1c2530,#11161d);border-top:1px solid var(--gold);display:flex;align-items:center;justify-content:center;z-index:50;padding-bottom:env(safe-area-inset-bottom)}
+  .motbar .mtext{font-style:italic;color:var(--gold);font-size:14px;font-weight:600;text-align:center;padding:0 16px;transition:opacity .4s}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:18px 18px 8px}
+  /* ===== EXPORT-ERINNERUNG ===== */
+  .export-reminder{position:sticky;top:48px;z-index:19;background:linear-gradient(90deg,#2a1f00,#1e1600,#2a1f00);border-bottom:2px solid var(--gold);padding:10px 18px;display:none;align-items:center;gap:12px;flex-wrap:wrap;animation:slideDown .3s ease}
+  .export-reminder.show{display:flex}
+  @keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+  .export-reminder .rem-text{flex:1;font-size:13.5px;color:var(--gold);min-width:200px}
+  .export-reminder .rem-text b{color:#ffd166}
+  .export-reminder .rem-sub{font-size:11.5px;color:var(--amber);opacity:.85;margin-top:1px}
+  .btn-remind-export{background:var(--gold);color:#1a1100;border:none;padding:7px 14px;border-radius:7px;font-weight:700;font-size:13px;cursor:pointer}
+  .btn-remind-export:hover{background:#c8a22f}
+  .btn-remind-dismiss{background:transparent;color:var(--muted);border:1px solid var(--line);padding:7px 12px;border-radius:7px;font-size:12px;cursor:pointer}
+  .btn-remind-dismiss:hover{color:var(--txt)}
+
+  /* ===== DASHBOARD-STATISTIKEN ===== */
+  .dash-kpis{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));margin-bottom:16px}
+  .chart-box{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin:12px 0}
+  .chart-box h3{margin:0 0 12px;font-size:14px;color:var(--gold)}
+  canvas{width:100%;display:block}
+  /* Kalender-Heatmap */
+  .heatmap{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin:10px 0;max-width:340px}
+  .hm-cell{aspect-ratio:1;border-radius:4px;min-height:20px;cursor:default;transition:.15s}
+  .hm-cell:hover{transform:scale(1.15)}
+  .hm-empty{background:var(--panel2)}
+  .hm-win{background:#1a4a2a}.hm-win-big{background:#2e9e4e}
+  .hm-loss{background:#4a1a1a}.hm-loss-big{background:#c0392b}
+  .hm-be{background:#2a3441}
+  .hm-legend{display:flex;gap:12px;font-size:11px;color:var(--muted);margin-top:8px;flex-wrap:wrap}
+  .hm-legend span{display:flex;align-items:center;gap:4px}
+  .hm-dot{width:12px;height:12px;border-radius:3px;display:inline-block}
+  /* Monats-Tabelle */
+  .month-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+  .month-tbl th,.month-tbl td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:right}
+  .month-tbl th:first-child,.month-tbl td:first-child{text-align:left}
+  .month-tbl th{color:var(--muted);font-size:10.5px;text-transform:uppercase}
+  /* Review / TradingView */
+  .review-embed{width:100%;aspect-ratio:16/10;border:1px solid var(--line);border-radius:10px;margin-top:10px;background:var(--panel2)}
+  .review-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin:10px 0}
+  .review-card .rmeta{font-size:12px;color:var(--muted);margin-bottom:8px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .review-card .rlink{color:var(--blue);font-size:12.5px;word-break:break-all}
+  .review-thumb{display:flex;align-items:center;justify-content:center;height:160px;background:var(--panel2);border:1px dashed var(--line);border-radius:8px;color:var(--muted);font-size:13px;margin-top:8px;cursor:pointer;text-decoration:none}
+  .review-thumb:hover{border-color:var(--gold);color:var(--gold)}
+
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Trading-Cockpit <span class="gold">Ko-Performance Masterplan</span></h1>
+    <div class="sub">Dein komplettes Trading-System · Asia Range + ORB 15min + Price Action</div>
+  </div>
+  <div class="clock-box">
+    <div class="ctime" id="ctime">--:--:--</div>
+    <div class="cdate" id="cdate">—</div>
+    <div class="csession off" id="csession">—</div>
+  </div>
+</header>
+<nav id="nav"></nav>
+
+<!-- ===== EXPORT-ERINNERUNG (erscheint nach 10 neuen Trades) ===== -->
+<div class="export-reminder" id="exportReminder">
+  <div class="rem-text">
+    💾 <b id="remCount">10</b> neue Trades seit deinem letzten Backup!
+    <div class="rem-sub">Exportiere jetzt — bei iPhone-Reset oder Cache-Löschen sind Daten weg.</div>
+  </div>
+  <div class="rem-btns">
+    <button class="btn-remind-export" id="remExportBtn">⬇️ Jetzt sichern</button>
+    <button class="btn-remind-dismiss" id="remDismissBtn">Später</button>
+  </div>
+</div>
+<main>
+
+<!-- ═══════════ DASHBOARD ═══════════ -->
+<section id="dashboard" class="active">
+  <h2>📊 Dashboard</h2>
+  <p class="lead">Deine Performance auf einen Blick. Alle Werte aus deinem Journal.</p>
+
+  <!-- KPI-Kacheln -->
+  <div class="dash-kpis" id="dashKpis"></div>
+
+  <!-- P&L-Verlauf (Equity-Kurve) -->
+  <div class="chart-box">
+    <h3>💰 P&L-Verlauf (Equity-Kurve)</h3>
+    <canvas id="equityCanvas" height="220"></canvas>
+  </div>
+
+  <!-- Zwei Spalten: Win/Loss + Drawdown -->
+  <div style="display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+    <div class="chart-box">
+      <h3>📈 Win-Rate &amp; Ergebnisse</h3>
+      <canvas id="winrateCanvas" height="180"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>📉 Drawdown-Verlauf</h3>
+      <canvas id="drawdownCanvas" height="180"></canvas>
+    </div>
+  </div>
+
+  <!-- Kalender-Heatmap -->
+  <div class="chart-box">
+    <h3>🗓️ Kalender-Heatmap (P&L pro Tag)</h3>
+    <div id="heatmapWrap"></div>
+    <div class="hm-legend">
+      <span><i class="hm-dot hm-loss-big"></i> großer Verlust</span>
+      <span><i class="hm-dot hm-loss"></i> Verlust</span>
+      <span><i class="hm-dot hm-be"></i> neutral</span>
+      <span><i class="hm-dot hm-win"></i> Gewinn</span>
+      <span><i class="hm-dot hm-win-big"></i> großer Gewinn</span>
+    </div>
+  </div>
+
+  <!-- Monats-Tabelle (wie Excel-Vorlage) -->
+  <div class="chart-box">
+    <h3>📅 Monats-Übersicht</h3>
+    <div class="tbl-wrap">
+      <table class="month-tbl" id="monthTbl">
+        <thead><tr><th>Monat</th><th>Trades</th><th>Wins</th><th>Losses</th><th>Win-Rate</th><th>Ø RRR</th><th>Netto P&L</th><th>Status</th></tr></thead>
+        <tbody id="monthTblBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Top-Setups + Sessions -->
+  <div style="display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+    <div class="chart-box"><h3>🎯 Beste Setups</h3><div id="setupStats"></div></div>
+    <div class="chart-box"><h3>🕐 Beste Sessions</h3><div id="sessionStats"></div></div>
+  </div>
+</section>
+<section id="start">
+  <h2>Tagesstart — deine Routine</h2>
+  <p class="lead">In dieser Reihenfolge, jeden Handelstag. Kein Schritt überspringen.</p>
+  <div class="step"><div class="n">1</div><div class="b"><b>05:00–07:00 Vorbereitung:</b> Mental klar? Wirtschaftskalender prüfen (ForexFactory/Investing). Asia-Range markieren. 4H/Daily-Bias bestimmen.</div></div>
+  <div class="step"><div class="n">2</div><div class="b"><b>09:00 London / 15:30 NY:</b> Opening Range (erste 15 Min) markieren. Auf Breakout + Bestätigung warten.</div></div>
+  <div class="step"><div class="n">3</div><div class="b"><b>Vor dem Entry:</b> Checkliste durchgehen (Tab „Checkliste"). Nur bei vollem Score traden. Lot mit dem Rechner bestimmen.</div></div>
+  <div class="step"><div class="n">4</div><div class="b"><b>Im Trade:</b> Stop nie verschieben. Nach 2 Trades oder −2% Tagesverlust: Plattform zu.</div></div>
+  <div class="step"><div class="n">5</div><div class="b"><b>18:00–19:00 Review:</b> Trades ins Journal eintragen (Tab „Journal"). Plan zu 100% befolgt? Emotion? Was verbessern?</div></div>
+  <div class="panel ok"><b class="gold">Die beste Handelszeit:</b> London/NY-Overlap 15:30–18:00 MESZ. Beste Tage: Dienstag–Donnerstag. Montag & Freitag reduziert.</div>
+  <div class="panel warn"><b>3 Dinge, die dich bremsen können:</b> zu viele Strategien parallel · unrealistische Tagesziele · Regeln unter Druck brechen. Lösung: <b>eine Strategie (ORB), 1% Risiko, Checkliste = Pflicht.</b></div>
+  <div class="quote">„Plan the trade. Trade the plan. Discipline today, freedom tomorrow."</div>
+</section><section id="check">
+  <h2>Pre-Trade-Checkliste</h2>
+  <p class="lead">Punkte antippen zum Abhaken. PFLICHT-Punkte müssen erfüllt sein, sonst kein Trade.</p>
+  <div class="scorebar">
+    <div><div class="big" id="scoreNum">0 / 0</div><div class="small">Trade-Score</div></div>
+    <div class="bar"><i id="scoreFill"></i></div>
+    <div class="verdict" id="verdict" style="color:var(--muted)">Beginne mit der Analyse</div>
+    <button class="btn" id="resetChk">Reset</button>
+  </div>
+  <div class="panel" id="checkHost"></div>
+</section><section id="strat">
+  <h2>Strategien — aufklappen & auswählen</h2>
+  <p class="lead">Jede Strategie/jedes Muster einzeln aufklappbar. Fokus jetzt: nur die grün markierte.</p>
+
+  <details class="acc" open>
+    <summary>15-min ORB + Price Action <span class="pill now">JETZT TRADEN</span><span class="chev">▶</span></summary>
+    <div class="body">
+      <p class="small">Hauptsystem. Markt: Gold, EUR/USD, GBPUSD, GBPJPY. London Open 09:00 / NY 15:30 MESZ. Winrate ~50–65%, CRV min. 1:2.</p>
+      <div class="step"><div class="n">1</div><div class="b">Vor Open: <b>Asia-Range</b> (Hoch/Tief) markieren, 4H-Bias bestimmen, News checken.</div></div>
+      <div class="step"><div class="n">2</div><div class="b"><b>Opening Range</b>: Hoch &amp; Tief der ersten 15-Min-Kerze.</div></div>
+      <div class="step"><div class="n">3</div><div class="b"><b>Richtung</b>: 15-Min-Schluss über OR-High → Long, unter OR-Low → Short. Mit 4H-Trend.</div></div>
+      <div class="step"><div class="n">4</div><div class="b"><b>Bestätigung</b>: Break of Structure (BoS) + Pattern (Engulfing/Pin/Inside) + Retest.</div></div>
+      <div class="step"><div class="n">5</div><div class="b"><b>Entry/Stop/TP</b>: Entry knapp über/unter Pattern · Stop Gegenseite der OR · TP nächstes Key-Level, min. 1:2.</div></div>
+    </div>
+  </details>
+
+  <details class="acc">
+    <summary>Candlestick-Muster — visuell <span class="pill ref">BESTÄTIGUNG</span><span class="chev">▶</span></summary>
+    <div class="body">
+      <p class="small"><b>Grundsatz:</b> Muster allein sind wertlos — sie brauchen Kontext (Key Level + Trend). Erst dann sind sie ein Signal.</p>
+      <h4 class="gold" style="margin:16px 0 2px">1 · Kerzen-Anatomie</h4>
+      <div class="pgrid">
+        <div class="pcard">
+          <svg viewBox="0 0 120 170" class="csvg">
+            <line x1="40" y1="20" x2="40" y2="135" class="wk"/>
+            <rect x="25" y="55" width="30" height="55" class="up"/>
+            <text x="62" y="40" class="lbl">High</text><text x="62" y="62" class="lbl">Close</text>
+            <text x="62" y="112" class="lbl">Open</text><text x="62" y="138" class="lbl">Low</text>
+            <text x="40" y="158" class="cap up-t">bullish</text>
+          </svg>
+          <svg viewBox="0 0 120 170" class="csvg">
+            <line x1="40" y1="20" x2="40" y2="135" class="wk"/>
+            <rect x="25" y="55" width="30" height="55" class="dn"/>
+            <text x="62" y="40" class="lbl">High</text><text x="62" y="62" class="lbl">Open</text>
+            <text x="62" y="112" class="lbl">Close</text><text x="62" y="138" class="lbl">Low</text>
+            <text x="40" y="158" class="cap dn-t">bearish</text>
+          </svg>
+        </div>
+        <p class="small">Body = Bereich zwischen Open &amp; Close · Docht/Wick = Ausschläge zu High/Low. Grün: Close &gt; Open. Rot: Close &lt; Open.</p>
+      </div>
+      <h4 class="gold" style="margin:18px 0 2px">2 · Pin Bar („Pinocchio")</h4>
+      <p class="small">Langer Docht „lügt" über den Kurs — er wird komplett zurückgekauft/-verkauft. Umkehrsignal.</p>
+      <div class="pgrid">
+        <div class="pcard">
+          <svg viewBox="0 0 110 180" class="csvg">
+            <rect x="38" y="22" width="28" height="26" class="up"/>
+            <line x1="52" y1="48" x2="52" y2="158" class="wk"/><line x1="52" y1="14" x2="52" y2="22" class="wk"/>
+            <text x="52" y="176" class="cap up-t">Bullish Pin Bar</text>
+          </svg>
+          <div class="pdesc"><b>Bullish:</b> langer <b>unterer</b> Docht. Verkäufer drückten runter, Käufer holten alles zurück.<br><span class="small">Entry: über dem Hoch · Stop: unter dem Tief.</span></div>
+        </div>
+        <div class="pcard">
+          <svg viewBox="0 0 110 180" class="csvg">
+            <line x1="52" y1="22" x2="52" y2="132" class="wk"/>
+            <rect x="38" y="132" width="28" height="26" class="dn"/><line x1="52" y1="158" x2="52" y2="166" class="wk"/>
+            <text x="52" y="176" class="cap dn-t">Bearish Pin Bar</text>
+          </svg>
+          <div class="pdesc"><b>Bearish:</b> langer <b>oberer</b> Docht. Käufer drückten hoch, Verkäufer drückten alles zurück.<br><span class="small">Entry: unter dem Tief · Stop: über dem Hoch.</span></div>
+        </div>
+      </div>
+      <p class="small">Regeln: Docht ≥ 2× Body · Body sitzt an einem Ende · Gegendocht minimal.</p>
+      <h4 class="gold" style="margin:18px 0 2px">3 · Engulfing („Verschlucken")</h4>
+      <p class="small">Eine Kerze umschließt den Body der vorherigen komplett — klarer Machtwechsel.</p>
+      <div class="pgrid">
+        <div class="pcard">
+          <svg viewBox="0 0 140 180" class="csvg">
+            <line x1="45" y1="55" x2="45" y2="120" class="wk"/><rect x="33" y="70" width="24" height="35" class="dn"/>
+            <line x1="92" y1="35" x2="92" y2="150" class="wk"/><rect x="78" y="50" width="28" height="90" class="up"/>
+            <text x="70" y="174" class="cap up-t">Bullish Engulfing</text>
+          </svg>
+          <div class="pdesc"><b>Bullish:</b> grüne Kerze öffnet unter rotem Close, schließt über rotem Open. Käufer übernehmen.</div>
+        </div>
+        <div class="pcard">
+          <svg viewBox="0 0 140 180" class="csvg">
+            <line x1="45" y1="55" x2="45" y2="120" class="wk"/><rect x="33" y="70" width="24" height="35" class="up"/>
+            <line x1="92" y1="35" x2="92" y2="150" class="wk"/><rect x="78" y="50" width="28" height="90" class="dn"/>
+            <text x="70" y="174" class="cap dn-t">Bearish Engulfing</text>
+          </svg>
+          <div class="pdesc"><b>Bearish:</b> rote Kerze öffnet über grünem Close, schließt unter grünem Open. Verkäufer übernehmen.</div>
+        </div>
+      </div>
+      <h4 class="gold" style="margin:18px 0 2px">4 · Inside Bar</h4>
+      <p class="small">Kleine Kerze komplett im Bereich der vorigen „Mutterkerze" = Konsolidierung, aufgestaute Energie.</p>
+      <div class="pgrid">
+        <div class="pcard">
+          <svg viewBox="0 0 140 180" class="csvg">
+            <line x1="45" y1="30" x2="45" y2="155" class="wk"/><rect x="31" y="45" width="28" height="95" class="up"/>
+            <line x1="95" y1="70" x2="95" y2="115" class="wk"/><rect x="83" y="80" width="24" height="28" class="dn"/>
+            <line x1="20" y1="45" x2="120" y2="45" class="ref-l"/><line x1="20" y1="140" x2="120" y2="140" class="ref-l"/>
+            <text x="70" y="174" class="cap">Inside Bar</text>
+          </svg>
+          <div class="pdesc">Die 2. Kerze bleibt innerhalb von Hoch/Tief der Mutterkerze.<br><span class="small">Trade: Breakout aus der Mutterkerze in Trendrichtung. Stop am gegenüberliegenden Ende.</span></div>
+        </div>
+      </div>
+      <h4 class="gold" style="margin:18px 0 2px">5 · Key Levels — der Kontext</h4>
+      <p class="small">Ein Muster zählt nur an einem Key Level: einer Zone mit mind. 2 früheren Reaktionen (Support/Resistance, Asia-High/-Low, OR-Grenze). Pattern <b>am Level</b> = Trade. Mitten in der Range = Skip.</p>
+    </div>
+  </details>
+
+  <details class="acc">
+    <summary>ICT — Inner Circle Trader <span class="pill ref">WISSEN</span><span class="chev">▶</span></summary>
+    <div class="body">
+      <p class="small">Institutionelle Logik, Top-Down Daily → 4H → 15m. Bausteine:</p>
+      <ul style="font-size:13.5px">
+        <li><b>Liquidity Sweep:</b> Stops über/unter Hochs/Tiefs werden abgeholt.</li>
+        <li><b>Order Block (OB):</b> letzte konträre Kerze vor starkem Impuls.</li>
+        <li><b>Fair Value Gap (FVG):</b> ungetestete Lücke, wird meist gefüllt.</li>
+        <li><b>Market Structure Shift (MSS):</b> Strukturbruch → Trendwende.</li>
+        <li><b>OTE:</b> Einstieg 61,8–79% Retracement nach MSS &amp; FVG-Test.</li>
+      </ul>
+      <p style="font-size:13.5px">Ablauf: Bias → Liquidity markieren → Sweep abwarten → MSS → Entry im FVG/OB/OTE → Stop hinter Sweep.</p>
+    </div>
+  </details>
+
+  <details class="acc">
+    <summary>CRT — Candle Range Theory <span class="pill ref">WISSEN</span><span class="chev">▶</span></summary>
+    <div class="body">
+      <p class="small">Kerzen-Ranges auf 4H/Daily, drei Phasen:</p>
+      <ul style="font-size:13.5px">
+        <li><b>Accumulation:</b> Seitwärts, Liquidität baut sich auf.</li>
+        <li><b>Manipulation:</b> Sweep über Hoch/Tief — holt Stops.</li>
+        <li><b>Distribution:</b> echte Bewegung in Trendrichtung.</li>
+      </ul>
+      <p style="font-size:13.5px">Routine ~3×/Woche: HTF-Bias + CRT-Kerze → auf 15m/5m MSS/Sweep/OB suchen → Entry in Discount (Long)/Premium (Short), Stop hinter Sweep. 50%-Linie = Equilibrium.</p>
+    </div>
+  </details>
+
+  <details class="acc">
+    <summary>Price Action &amp; Key Levels <span class="pill ref">WISSEN</span><span class="chev">▶</span></summary>
+    <div class="body">
+      <p style="font-size:13.5px">Trading ohne Indikatoren — nur Price Action, Supply/Demand &amp; Liquidität. Key Levels = Zonen mit min. 2 früheren Reaktionen. Immer 4H/1H zuerst: Trend &amp; Struktur. Nie gegen den übergeordneten Trend. Einstieg nur wenn Struktur + Level + Bestätigung zusammenpassen.</p>
+      <p class="small">„First learn, then earn." — kein heiliger Gral, kein Magic-Indikator.</p>
+    </div>
+  </details>
+
+  <details class="acc">
+    <summary>System B — 5-min ORB (US-Indizes) <span class="pill later">SPÄTER</span><span class="chev">▶</span></summary>
+    <div class="body">
+      <p style="font-size:13.5px">NASDAQ/S&amp;P500, NY Open 15:30. Winrate nur 15–25%, aber Gewinner 5:1–10:1. Mental härter, braucht größeres Konto. Erst wenn System A stabil profitabel ist.</p>
+    </div>
+  </details>
+</section><section id="patterns">
+  <h2>Chart-Pattern Übersicht</h2>
+  <p class="lead">Die wichtigsten Formationen auf einen Blick. Bullish = steigend · Bearish = fallend · Reversal = Umkehr.</p>
+  <div id="patHost"></div>
+  <div class="panel info" style="margin-top:16px"><b class="gold">Wichtig:</b> Chart-Patterns sind Wahrscheinlichkeiten, keine Garantien. Sie funktionieren am besten <b>an Key Levels</b> und <b>in Trendrichtung</b>. Immer mit Stop-Loss traden — die „Stop"-Markierung zeigt wo er hingehört.</div>
+</section><section id="pairs">
+  <h2>Währungspaare — Übersicht</h2>
+  <p class="lead">Deine Kernpaare plus alle ergänzten. Sortiert nach Eignung für deine ORB-Strategie.</p>
+  <div id="pairsHost"></div>
+  <div class="panel warn" style="margin-top:14px"><b>Anfänger-Tipp:</b> Konzentriere dich am Anfang auf <b>2-3 Paare</b> (z.B. Gold + GBPUSD + EURUSD). Zu viele Paare = du verlierst den Überblick. Die Cross-Paare (z.B. GBPNZD, EURAUD) sind volatiler und für Anfänger schwerer.</div>
+</section><section id="calc">
+  <h2>Rechner</h2>
+  <p class="lead">Lot-Größe, Pips und Chance/Risiko — vor jedem Trade.</p>
+  <div class="panel calc">
+    <h3 class="gold" style="margin-top:0">Lot-Größen-Rechner</h3>
+    <div class="row">
+      <div><label>Kontostand ($/€)</label><input id="acc" type="number" value="1000"></div>
+      <div><label>Risiko pro Trade (%)</label><input id="risk" type="number" value="1" step="0.1"></div>
+    </div>
+    <div class="row">
+      <div><label>Stop-Loss (Pips/Punkte)</label><input id="sl" type="number" value="20"></div>
+      <div><label>Instrument</label>
+        <select id="inst">
+          <optgroup label="Hauptpaare (USD-Quote)">
+            <option value="0.10">EURUSD</option>
+            <option value="0.10">GBPUSD</option>
+            <option value="0.10">AUDUSD</option>
+            <option value="0.10">NZDUSD</option>
+          </optgroup>
+          <optgroup label="JPY-Paare">
+            <option value="0.10">GBPJPY</option>
+            <option value="0.10">EURJPY</option>
+            <option value="0.10">USDJPY</option>
+            <option value="0.10">CADJPY</option>
+          </optgroup>
+          <optgroup label="Cross-Paare">
+            <option value="0.10">EURGBP</option>
+            <option value="0.10">EURAUD</option>
+            <option value="0.10">EURCAD</option>
+            <option value="0.10">GBPAUD</option>
+            <option value="0.10">GBPNZD</option>
+            <option value="0.10">GBPCAD</option>
+            <option value="0.10">AUDNZD</option>
+            <option value="0.10">AUDCAD</option>
+            <option value="0.10">NZDCAD</option>
+          </optgroup>
+          <optgroup label="CAD/CHF-Quote (≈0,11$)">
+            <option value="0.11">USDCAD</option>
+            <option value="0.11">USDCHF</option>
+            <option value="0.11">GBPCHF</option>
+          </optgroup>
+          <optgroup label="Gold & Indizes">
+            <option value="1.00">Gold (XAUUSD)</option>
+            <option value="0.10">Nasdaq (US100)</option>
+            <option value="0.10">S&amp;P500 (US500)</option>
+          </optgroup>
+        </select>
+      </div>
+    </div>
+    <div class="res">Risiko: <b id="rEuro">10,00</b> &nbsp;·&nbsp; empfohlene Lot-Größe: <b id="rLot">0,05 Lot</b>
+      <div class="small" id="rNote" style="margin-top:6px"></div>
+    </div>
+    <p class="small">Formel: Lot = (Kontostand × Risiko%) ÷ (Stop-Pips × Pip-Wert je 0,01 Lot). Pip-Wert je 0,01 Lot: Forex ~0,10$ · CAD/CHF-Quote ~0,11$ · Gold 1,00$ · Nasdaq/S&amp;P500 0,10$. <b>Hinweis:</b> Pip-Werte bei Fremdwährungs-Paaren schwanken leicht mit dem Wechselkurs — gerundete Richtwerte.</p>
+  </div>
+  <div class="panel calc">
+    <h3 class="gold" style="margin-top:0">Chance-Risiko-Verhältnis (CRV)</h3>
+    <div class="row">
+      <div><label>Eingabe-Modus</label>
+        <select id="crvMode"><option value="pips">Pips/Punkte direkt</option><option value="price">Entry / SL / TP-Preis</option></select>
+      </div>
+      <div><label>Instrument</label>
+        <select id="crvInst">
+          <optgroup label="Hauptpaare (USD-Quote)">
+            <option data-pip="0.0001">EURUSD</option>
+            <option data-pip="0.0001">GBPUSD</option>
+            <option data-pip="0.0001">AUDUSD</option>
+            <option data-pip="0.0001">NZDUSD</option>
+          </optgroup>
+          <optgroup label="JPY-Paare">
+            <option data-pip="0.01">GBPJPY</option>
+            <option data-pip="0.01">EURJPY</option>
+            <option data-pip="0.01">USDJPY</option>
+            <option data-pip="0.01">CADJPY</option>
+          </optgroup>
+          <optgroup label="Cross-Paare">
+            <option data-pip="0.0001">EURGBP</option>
+            <option data-pip="0.0001">EURAUD</option>
+            <option data-pip="0.0001">EURCAD</option>
+            <option data-pip="0.0001">GBPAUD</option>
+            <option data-pip="0.0001">GBPNZD</option>
+            <option data-pip="0.0001">GBPCAD</option>
+            <option data-pip="0.0001">AUDNZD</option>
+            <option data-pip="0.0001">AUDCAD</option>
+            <option data-pip="0.0001">NZDCAD</option>
+          </optgroup>
+          <optgroup label="CAD/CHF-Quote">
+            <option data-pip="0.0001">USDCAD</option>
+            <option data-pip="0.0001">USDCHF</option>
+            <option data-pip="0.0001">GBPCHF</option>
+          </optgroup>
+          <optgroup label="Gold &amp; Indizes">
+            <option data-pip="1">Gold (XAUUSD)</option>
+            <option data-pip="1">Nasdaq (US100)</option>
+            <option data-pip="1">S&amp;P500 (US500)</option>
+          </optgroup>
+        </select>
+      </div>
+    </div>
+    <!-- Modus 1: Pips direkt -->
+    <div class="row" id="crvPipsRow">
+      <div><label>Stop-Loss (Pips)</label><input id="crvSL" type="number" value="20"></div>
+      <div><label>Take-Profit (Pips)</label><input id="crvTP" type="number" value="40"></div>
+    </div>
+    <!-- Modus 2: Preise -->
+    <div id="crvPriceRows" style="display:none">
+      <div class="row">
+        <div><label>Position</label>
+          <select id="crvPosDir"><option value="long">Long (Kauf)</option><option value="short">Short (Verkauf)</option></select>
+        </div>
+        <div><label>Entry-Preis</label><input id="crvEntry" type="number" step="any" placeholder="z.B. 1.34222"></div>
+      </div>
+      <div class="row">
+        <div><label>Stop-Loss-Preis</label><input id="crvSLp" type="number" step="any" placeholder="z.B. 1.34258"></div>
+        <div><label>Take-Profit-Preis</label><input id="crvTPp" type="number" step="any" placeholder="z.B. 1.34116"></div>
+      </div>
+    </div>
+    <div class="res">CRV: <b id="crvOut">1 : 2,0</b> <span id="crvVerd" class="small"></span>
+      <div class="small" id="crvNote" style="margin-top:6px"></div>
+    </div>
+    <p class="small">Regel: kein Trade unter 1:2. Ziel 1:3. Im Preis-Modus werden SL- und TP-Abstand automatisch aus Entry/SL/TP berechnet.</p>
+  </div>
+  <div class="panel calc">
+    <h3 class="gold" style="margin-top:0">Gewinn-/Verlust-Rechner</h3>
+    <div class="row">
+      <div><label>Lot-Größe</label><input id="pnlLot" type="number" value="0.10" step="0.01"></div>
+      <div><label>Eingabe-Modus</label>
+        <select id="pnlMode"><option value="pips">Pips/Punkte direkt</option><option value="price">Entry- &amp; Exit-Preis</option></select>
+      </div>
+    </div>
+    <!-- Modus 1: Pips direkt -->
+    <div class="row" id="pnlPipsRow">
+      <div><label>Pip-/Punkt-Bewegung</label><input id="pnlPips" type="number" value="20" step="any"></div>
+      <div><label>Richtung</label>
+        <select id="pnlDir"><option value="win">Gewinn (in deine Richtung)</option><option value="loss">Verlust (gegen dich)</option></select>
+      </div>
+    </div>
+    <!-- Modus 2: Entry/Exit-Preis -->
+    <div id="pnlPriceRows" style="display:none">
+      <div class="row">
+        <div><label>Position</label>
+          <select id="pnlPosDir"><option value="long">Long (Kauf)</option><option value="short">Short (Verkauf)</option></select>
+        </div>
+        <div><label>Entry-Preis</label><input id="pnlEntry" type="number" step="any" placeholder="z.B. 1.34222"></div>
+      </div>
+      <div class="row">
+        <div><label>Exit-Preis</label><input id="pnlExit" type="number" step="any" placeholder="z.B. 1.34116"></div>
+        <div></div>
+      </div>
+    </div>
+    <div class="row">
+      <div><label>Instrument</label>
+        <select id="pnlInst">
+          <optgroup label="Hauptpaare (USD-Quote)">
+            <option value="0.10" data-pip="0.0001">EURUSD</option>
+            <option value="0.10" data-pip="0.0001">GBPUSD</option>
+            <option value="0.10" data-pip="0.0001">AUDUSD</option>
+            <option value="0.10" data-pip="0.0001">NZDUSD</option>
+          </optgroup>
+          <optgroup label="JPY-Paare">
+            <option value="0.10" data-pip="0.01">GBPJPY</option>
+            <option value="0.10" data-pip="0.01">EURJPY</option>
+            <option value="0.10" data-pip="0.01">USDJPY</option>
+            <option value="0.10" data-pip="0.01">CADJPY</option>
+          </optgroup>
+          <optgroup label="Cross-Paare">
+            <option value="0.10" data-pip="0.0001">EURGBP</option>
+            <option value="0.10" data-pip="0.0001">EURAUD</option>
+            <option value="0.10" data-pip="0.0001">EURCAD</option>
+            <option value="0.10" data-pip="0.0001">GBPAUD</option>
+            <option value="0.10" data-pip="0.0001">GBPNZD</option>
+            <option value="0.10" data-pip="0.0001">GBPCAD</option>
+            <option value="0.10" data-pip="0.0001">AUDNZD</option>
+            <option value="0.10" data-pip="0.0001">AUDCAD</option>
+            <option value="0.10" data-pip="0.0001">NZDCAD</option>
+          </optgroup>
+          <optgroup label="CAD/CHF-Quote (≈0,11$)">
+            <option value="0.11" data-pip="0.0001">USDCAD</option>
+            <option value="0.11" data-pip="0.0001">USDCHF</option>
+            <option value="0.11" data-pip="0.0001">GBPCHF</option>
+          </optgroup>
+          <optgroup label="Gold &amp; Indizes">
+            <option value="1.00" data-pip="1">Gold (XAUUSD)</option>
+            <option value="0.10" data-pip="1">Nasdaq (US100)</option>
+            <option value="0.10" data-pip="1">S&amp;P500 (US500)</option>
+          </optgroup>
+        </select>
+      </div>
+    </div>
+    <div class="res" id="pnlResBox">Ergebnis: <b id="pnlResult">+20,00 $</b>
+      <div class="small" id="pnlNote" style="margin-top:6px"></div>
+    </div>
+    <p class="small">Zwei Modi: <b>Pips direkt</b> oder <b>Entry-/Exit-Preis</b> (rechnet die Pips automatisch). Pip-Wert je 0,01 Lot: Forex ~0,10$ · CAD/CHF-Quote ~0,11$ · Gold 1,00$/Punkt · Nasdaq/S&amp;P500 0,10$/Punkt. <b>Beispiel:</b> Short GBPUSD Entry 1.34222 → Exit 1.34116 = 10,6 Pips × 0,27 Lot = 28,62 $.</p>
+  </div>
+</section><section id="rules">
+  <h2>Regeln, Risiko &amp; Sessions</h2>
+  <p class="lead">Nicht verhandelbar.</p>
+  <div class="panel">
+    <h3 class="gold" style="margin-top:0">Risiko-Limits</h3>
+    <table>
+      <tr><th>Regel</th><th>Wert</th><th>Bei 1.000</th></tr>
+      <tr><td>Risiko / Trade</td><td>max. 1%</td><td>10</td></tr>
+      <tr><td>Trades / Tag</td><td>max. 2</td><td>—</td></tr>
+      <tr><td>Tages-Stop</td><td>−2% → Computer aus</td><td>20</td></tr>
+      <tr><td>Wochen-Stop</td><td>−5% → Pause + Analyse</td><td>50</td></tr>
+      <tr><td>Drawdown-Grenze</td><td>−10% → Strategie überdenken</td><td>100</td></tr>
+      <tr><td>Min. CRV</td><td>1:2 (Ziel 1:3)</td><td>—</td></tr>
+    </table>
+  </div>
+  <div class="panel warn">
+    <h3 style="margin-top:0">Absolute Verbote</h3>
+    <ul>
+      <li>Kein Revenge-Trading → Computer sofort aus.</li>
+      <li>Kein Trade ohne markierte Levels.</li>
+      <li>Kein Trade 30 Min vor High-Impact-News (NFP, CPI, FOMC, EZB).</li>
+      <li>Stop niemals verschieben.</li>
+      <li>Nach 2 Verlust-Trades: Tag vorbei.</li>
+      <li>Kein Trading bei Müdigkeit/Stress/Emotion.</li>
+      <li>Kein Trade außerhalb der Session-Zeiten.</li>
+    </ul>
+  </div>
+  <div class="panel">
+    <h3 class="gold" style="margin-top:0">Sessions (Sommerzeit MESZ)</h3>
+    <table>
+      <tr><th>Session</th><th>MESZ</th><th>Beste Paare</th></tr>
+      <tr><td>Asia (Tokio)</td><td>01:00–09:00</td><td>USDJPY, GBPJPY, Gold (Vorbereitung)</td></tr>
+      <tr><td>London Open</td><td>09:00–12:00</td><td class="win">EURUSD, GBPUSD, GBPJPY, Gold</td></tr>
+      <tr><td>New York Open</td><td>15:30–17:00</td><td class="win">Gold, EURUSD, GBPUSD</td></tr>
+      <tr><td>London/NY Overlap</td><td>15:30–18:00</td><td class="win">Gold, EURUSD — beste Zeit!</td></tr>
+    </table>
+    <p class="small">★ Beste Zeit: London/NY-Overlap 15:30–18:00 MESZ. Beste Tage: Di–Do.</p>
+  </div>
+  <div class="panel info">
+    <h3 style="margin-top:0">Pip-Werte (Referenz)</h3>
+    <table>
+      <tr><th>Instrument</th><th>1 Pip/Punkt</th><th>je 0,01 Lot</th><th>je 1,0 Lot</th></tr>
+      <tr><td>EURUSD/GBPUSD/GBPJPY</td><td>0,0001 (JPY: 0,01)</td><td>0,10$</td><td>10$</td></tr>
+      <tr><td>Gold (XAUUSD)</td><td>1$ Bewegung</td><td>1,00$</td><td>100$</td></tr>
+      <tr><td>Nasdaq / S&amp;P500</td><td>1 Punkt</td><td>0,10$</td><td>10$</td></tr>
+    </table>
+  </div>
+</section>
+<!-- ═══════════ TRADING JOURNAL ═══════════ -->
+<section id="journal">
+  <h2>✍️ Trading Journal</h2>
+  <p class="lead">Jeden Trade erfassen — auch die Verlierer. Wird lokal im Browser gespeichert.</p>
+
+  <!-- Statistik-Kacheln -->
+  <div class="cards" id="jKpis">
+    <div class="kpi"><div class="v" id="kTrades">0</div><div class="l">Trades</div></div>
+    <div class="kpi"><div class="v win" id="kWins">0</div><div class="l">Gewinner</div></div>
+    <div class="kpi"><div class="v loss" id="kLoss">0</div><div class="l">Verlierer</div></div>
+    <div class="kpi"><div class="v" id="kWinrate">0%</div><div class="l">Trefferquote</div></div>
+    <div class="kpi"><div class="v" id="kPnl">0</div><div class="l">P&L</div></div>
+    <div class="kpi"><div class="v" id="kR">0,0R</div><div class="l">Gesamt R</div></div>
+  </div>
+
+  <!-- Eingabe-Formular: Basis-Details (v2) -->
+  <div class="panel">
+    <h3 class="gold" style="margin-top:0">Neuen Trade eintragen</h3>
+    <div class="jform">
+      <div><label>Datum</label><input type="date" id="jDate"></div>
+      <div><label>Paar</label>
+        <select id="jPair">
+          <option>Gold (XAUUSD)</option><option>GBPUSD</option><option>GBPJPY</option>
+          <option>EURUSD</option><option>USDJPY</option><option>EURJPY</option><option>EURGBP</option>
+          <option>NZDCAD</option><option>EURCAD</option><option>CADJPY</option><option>AUDNZD</option>
+          <option>USDCAD</option><option>EURAUD</option><option>AUDUSD</option><option>AUDCAD</option>
+          <option>GBPCHF</option><option>GBPNZD</option><option>USDCHF</option><option>GBPAUD</option>
+          <option>NZDUSD</option><option>GBPCAD</option><option>Nasdaq</option><option>S&P 500</option>
+        </select>
+      </div>
+      <div><label>Richtung</label><select id="jDir"><option>Long</option><option>Short</option></select></div>
+      <div><label>Strategie / Setup</label>
+        <select id="jSetup">
+          <option value="">– Setup –</option>
+          <option>ORB 15min</option>
+          <option>Asia Range Break</option>
+          <option>BOS / CHoCH</option>
+          <option>Order Block</option>
+          <option>Fair Value Gap</option>
+          <option>Liquidity Grab</option>
+          <option>Pin Bar</option>
+          <option>Engulfing</option>
+          <option>Inside Bar</option>
+          <option>Support/Resistance</option>
+          <option>Trendfolge</option>
+          <option>Anderes…</option>
+        </select>
+      </div>
+      <div><label>Session</label>
+        <select id="jSession"><option>London</option><option>New York</option><option>Overlap</option><option>Asia</option></select>
+      </div>
+      <div><label>Markt-Bias heute</label>
+        <select id="jBias">
+          <option value="">– –</option>
+          <option>Bullisch</option>
+          <option>Bärisch</option>
+          <option>Neutral / Ranging</option>
+          <option>Unsicher</option>
+        </select>
+      </div>
+      <div><label>Entry</label><input type="number" step="any" id="jEntry" placeholder="z.B. 4530"></div>
+      <div><label>Stop Loss</label><input type="number" step="any" id="jSL" placeholder="z.B. 4542"></div>
+      <div><label>Take Profit</label><input type="number" step="any" id="jTP" placeholder="z.B. 4520"></div>
+      <div><label>Lot-Größe</label><input type="number" step="any" id="jLot" placeholder="z.B. 0.01"></div>
+      <div><label>Ergebnis (€/$)</label><input type="number" step="any" id="jPnl" placeholder="z.B. 200 oder -100"></div>
+      <div><label>R-Multiple</label><input type="number" step="0.1" id="jRmult" placeholder="z.B. 2 oder -1"></div>
+      <div><label>Emotion</label>
+        <select id="jEmotion"><option value="">– –</option><option value="😊">😊 Ruhig/Diszipliniert</option><option value="😐">😐 Neutral</option><option value="😟">😟 Unsicher/Nervös</option><option value="😤">😤 Ungeduldig</option><option value="🔥">🔥 Im Flow</option><option value="😵">😵 Überfordert</option></select>
+      </div>
+      <div><label>Ergebnis</label><select id="jResult"><option>WIN</option><option>LOSS</option><option>BE</option></select></div>
+      <div><label>Tags (kommagetrennt)</label><input type="text" id="jTags" placeholder="z.B. fomo, revenge, plan-befolgt"></div>
+      <textarea id="jNote" placeholder="Kurze Notiz: Was lief gut/schlecht? Plan befolgt? z.B. '5min Kerze abgewartet, Einstieg unter London Open.'"></textarea>
+      <!-- Trade-Analyse-Felder (Screenshot 1) -->
+      <textarea id="jReason" placeholder="BEGRÜNDUNG / ANALYSE (PRE-TRADE): Warum dieser Trade? Welche Confluences? z.B. BOS auf H1, FVG auf M15, Asia Range High als Liquidität…"></textarea>
+      <textarea id="jReview" placeholder="NACHBESPRECHUNG (POST-TRADE): Was lief gut? Was besser machen? Plan befolgt? Learnings?"></textarea>
+      <div style="grid-column:1/-1"><label>Chart-Screenshot URL (TradingView)</label><input type="text" id="jChart" placeholder="https://www.tradingview.com/x/ABC123/"></div>
+    </div>
+    <div class="small" style="margin-top:6px">💡 TradingView-Snapshot (Kamera → „Bild-URL kopieren", ergibt /x/…) wird in der Trade-Liste als Chart-Bild eingebettet.</div>
+    <div class="jbtns">
+      <button class="btn green" id="jAdd">+ Trade hinzufügen</button>
+      <button class="btn gold" id="jExport">⬇ Export (CSV)</button>
+      <button class="btn" id="jImport">⬆ Import (CSV)</button>
+      <button class="btn red" id="jClear">Alle löschen</button>
+      <input type="file" id="jFile" accept=".csv" style="display:none">
+    </div>
+  </div>
+
+  <!-- Trade-Liste (monatlich gruppiert) -->
+  <div id="jList"></div>
+</section>
+
+<section id="road">
+  <h2>Lern-Roadmap (90 Tage)</h2>
+  <p class="lead">Nicht überall gleichzeitig lernen. Reihenfolge:</p>
+  <details class="acc" open><summary>Phase 0 · Fundament — diese Woche<span class="chev">▶</span></summary><div class="body"><ul><li>Regeln &amp; Checkliste hier verinnerlichen.</li><li>TradingView + Risk-Calculator einrichten.</li><li>Lot-Berechnung 5× üben (Rechner-Tab).</li><li>Realistisches Ziel: „1 sauberer Trade, 1% Risiko".</li></ul></div></details>
+  <details class="acc"><summary>Phase 1 · Backtest (Tag 1–30)<span class="chev">▶</span></summary><div class="body"><ul><li>50+ ORB-Setups im TradingView Bar-Replay, jeden ins Journal.</li><li>Praxis-Beispiele als Vorlage.</li><li>Ziel: Trefferquote &gt;40%, Profit-Faktor &gt;1,5, Avg-R &gt;0,3, Max-DD &lt;20%.</li></ul></div></details>
+  <details class="acc"><summary>Phase 2 · Demo / Forward-Test (Tag 31–60)<span class="chev">▶</span></summary><div class="body"><ul><li>Strategie live auf Demo, gleiche 1%-Regeln.</li><li>Psychologie-Training parallel.</li><li>Wöchentliches Review: Plan zu 100% befolgt?</li></ul></div></details>
+  <details class="acc"><summary>Phase 3 · Klein live (Tag 61–90)<span class="chev">▶</span></summary><div class="body"><ul><li>Nur bei profitabler Demo (50+ Trades): 0,01 Lot, echtes Geld.</li><li>Ziel = saubere Ausführung, nicht Profit.</li><li>Danach erst über ICT/CRT oder System B nachdenken.</li></ul></div></details>
+</section>
+<!-- ═══════════ EINSTELLUNGEN (letzter Tab) ═══════════ -->
+<section id="einstellungen">
+  <h2>⚙️ Einstellungen</h2>
+  <p class="lead">Konto, Backup &amp; Daten. Alles liegt lokal im Browser (localStorage).</p>
+
+  <div class="panel">
+    <h3 class="gold" style="margin-top:0">Konto-Einstellungen</h3>
+    <div class="form-grid">
+      <label class="fl"><span>Trader Name</span><input type="text" id="cfgName" placeholder="Faress"></label>
+      <label class="fl"><span>Startkapital</span><input type="number" id="cfgCapital" placeholder="z.B. 1000"></label>
+      <label class="fl"><span>Währung</span><select id="cfgCurrency"><option>$</option><option>€</option><option>CHF</option><option>GBP</option></select></label>
+      <label class="fl"><span>Max Risiko / Trade (%)</span><input type="number" id="cfgMaxrisk" step="0.1" placeholder="z.B. 1.0"></label>
+      <label class="fl"><span>Monatliches Ziel (%)</span><input type="number" id="cfgTarget" step="0.1" placeholder="z.B. 8"></label>
+    </div>
+    <div class="jbtns"><button class="btn gold" id="cfgSave">💾 Speichern</button></div>
+    <div id="cfgMsg" style="margin-top:10px;font-size:13px;color:var(--green)"></div>
+  </div>
+
+  <div class="panel">
+    <h3 class="gold" style="margin-top:0">Backup: Export / Import</h3>
+    <p class="small" style="margin-bottom:12px">Sichere ALLE Daten (Trades, Diaries, Reviews, Einstellungen) als JSON. Regelmäßig machen!</p>
+    <div class="jbtns">
+      <button class="btn gold" id="expJson">⬇️ Komplett-Backup (JSON)</button>
+      <button class="btn" id="expCsv">📊 Trades (CSV)</button>
+    </div>
+    <div style="margin-top:16px">
+      <div class="drop-zone" id="dropZone">📂 Klicke hier oder ziehe eine JSON-Backup-Datei hinein zum Importieren
+        <input type="file" id="impJson" accept=".json" style="display:none"></div>
+    </div>
+  </div>
+
+  <div class="panel warn">
+    <h3 style="margin-top:0">Daten zurücksetzen</h3>
+    <p class="small" style="margin-bottom:12px">⚠️ Vorsicht: Löscht ALLE Trades, Diaries und Reviews unwiderruflich.</p>
+    <button class="btn red" id="resetAll">🗑️ Alle Daten löschen</button>
+  </div>
+</section>
+
+</main>
+<footer>Trading-Cockpit Ko-Performance Masterplan · Faress · Kein Finanzberater — dein persönliches Tool · Alle Daten lokal im Browser gespeichert</footer>
+<div class="motbar"><div class="mtext" id="motText">"Discipline Today, Freedom Tomorrow."</div></div>
+
+<script>
+
+/* ============================================================
+   TRADING-COCKPIT · zentrale Logik
+   Alle Daten in localStorage. Keine externe DB.
+   ============================================================ */
+
+/* ---------- NAVIGATION ----------
+   Reihenfolge strikt: Dashboard ... Roadmap, Einstellungen GANZ ZULETZT */
+const tabs = [
+  ['dashboard','📊 Dashboard'],['start','🌅 Tagesstart'],['check','✅ Checkliste'],
+  ['strat','📈 Strategien'],['patterns','🕯️ Chart-Patterns'],['pairs','💱 Paare'],
+  ['calc','🧮 Rechner'],['rules','📜 Regeln'],['journal','✍️ Journal'],
+  ['road','🗺️ Roadmap'],
+  ['einstellungen','⚙️ Einstellungen']   // <-- immer als LETZTER Reiter
+];
+const nav = document.getElementById('nav');
+tabs.forEach(([id,label],i)=>{
+  const b=document.createElement('button');
+  b.textContent=label; b.dataset.t=id;
+  if(i===0)b.classList.add('active');
+  b.onclick=()=>{
+    document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    // Render-Funktionen bei Tab-Wechsel
+    if(id==='dashboard') renderDashboard();
+    if(id==='journal') renderJournal();
+    if(id==='einstellungen') loadConfig();
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+  nav.appendChild(b);
+});
+
+/* ---------- LIVE-UHR (Tag, Datum, Uhrzeit mit Sekunden) ---------- */
+function updateClock(){
+  const now=new Date();
+  const opts={timeZone:'Europe/Berlin'};
+  const time=now.toLocaleTimeString('de-DE',{...opts,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const wd=now.toLocaleDateString('de-DE',{...opts,weekday:'short'});
+  const date=now.toLocaleDateString('de-DE',{...opts,day:'2-digit',month:'2-digit',year:'numeric'});
+  document.getElementById('ctime').textContent=time;
+  document.getElementById('cdate').textContent=`${wd}, ${date}`;
+  const b=new Date(now.toLocaleString('en-US',{timeZone:'Europe/Berlin'}));
+  const dec=b.getHours()+b.getMinutes()/60;
+  let s='Markt ruhig',on=false;
+  if(dec>=15.5&&dec<18){s='London/NY Overlap 🔥';on=true;}
+  else if(dec>=15.5&&dec<17){s='New York Open';on=true;}
+  else if(dec>=12&&dec<15.5){s='London Session';on=true;}
+  else if(dec>=9&&dec<12){s='London Open';on=true;}
+  else if(dec>=1&&dec<9){s='Asia Session';on=true;}
+  const el=document.getElementById('csession');
+  el.textContent=s; el.className='csession '+(on?'on':'off');
+}
+setInterval(updateClock,1000); updateClock();
+
+/* ============================================================
+   STATE & STORAGE (localStorage)
+   ============================================================ */
+let trades   = JSON.parse(localStorage.getItem('tc_trades')   || '[]');
+let cfg      = JSON.parse(localStorage.getItem('tc_cfg')      || '{"name":"Faress","capital":1000,"currency":"$","maxrisk":1,"target":8}');
+
+function saveAll(){
+  localStorage.setItem('tc_trades',  JSON.stringify(trades));
+  localStorage.setItem('tc_cfg',     JSON.stringify(cfg));
+  checkExportReminder(); // nach jedem Speichern prüfen
+}
+
+/* ============================================================
+   EXPORT-ERINNERUNG
+   Zeigt Banner wenn ≥10 neue Trades seit letztem Export
+   tc_last_export_count = Trade-Anzahl beim letzten Export
+   ============================================================ */
+function checkExportReminder(){
+  const lastCount=parseInt(localStorage.getItem('tc_last_export_count')||'0');
+  const newTrades=trades.length-lastCount;
+  const banner=document.getElementById('exportReminder');
+  const countEl=document.getElementById('remCount');
+  if(!banner)return;
+  if(newTrades>=10){
+    if(countEl)countEl.textContent=newTrades;
+    banner.classList.add('show');
+  } else {
+    banner.classList.remove('show');
+  }
+}
+function markExported(){
+  localStorage.setItem('tc_last_export_count', trades.length);
+  document.getElementById('exportReminder')?.classList.remove('show');
+}
+// Reminder-Buttons
+document.getElementById('remExportBtn').onclick=()=>{
+  document.getElementById('expJson').click();
+  markExported();
+};
+document.getElementById('remDismissBtn').onclick=()=>{
+  // "Später" snoozt für 5 Trades (nicht dauerhaft wegklicken)
+  localStorage.setItem('tc_last_export_count',
+    Math.max(parseInt(localStorage.getItem('tc_last_export_count')||'0'), trades.length-4));
+  document.getElementById('exportReminder').classList.remove('show');
+};
+/* Helfer */
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+function num(v){const n=parseFloat(v);return isNaN(n)?0:n;}
+function fmt(n){return (n>=0?'+':'')+n.toLocaleString('de-DE',{maximumFractionDigits:2});}
+function esc(s){return (s||'').toString().replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));}
+
+/* ============================================================
+   TRADING JOURNAL  (Felder: date,pair,dir,setup,session,entry,sl,tp,lot,pnl,rmult,emotion,result,tags,note)
+   ============================================================ */
+const jDateEl=document.getElementById('jDate');
+if(jDateEl) jDateEl.valueAsDate=new Date();
+
+document.getElementById('jAdd').onclick=()=>{
+  const t={
+    id:uid(),
+    date:   document.getElementById('jDate').value,
+    pair:   document.getElementById('jPair').value,
+    dir:    document.getElementById('jDir').value,
+    setup:  document.getElementById('jSetup').value,
+    session:document.getElementById('jSession').value,
+    bias:   document.getElementById('jBias').value,
+    entry:  document.getElementById('jEntry').value,
+    sl:     document.getElementById('jSL').value,
+    tp:     document.getElementById('jTP').value,
+    lot:    document.getElementById('jLot').value,
+    pnl:    document.getElementById('jPnl').value,
+    rmult:  document.getElementById('jRmult').value,
+    emotion:document.getElementById('jEmotion').value,
+    result: document.getElementById('jResult').value,
+    tags:   document.getElementById('jTags').value,
+    note:   document.getElementById('jNote').value,
+    reason: document.getElementById('jReason').value,
+    review: document.getElementById('jReview').value,
+    chart:  document.getElementById('jChart').value.trim()
+  };
+  if(!t.date){alert('Bitte Datum eingeben');return;}
+  trades.push(t); saveAll(); renderJournal();
+  // Felder leeren (Datum bleibt)
+  ['jEntry','jSL','jTP','jLot','jPnl','jRmult','jTags','jNote','jReason','jReview','jChart'].forEach(id=>document.getElementById(id).value='');
+};
+
+document.getElementById('jClear').onclick=()=>{
+  if(confirm('Wirklich ALLE Trades löschen? Vorher exportieren!')){trades=[];saveAll();renderJournal();renderDashboard();}
+};
+
+function renderJournal(){
+  // KPIs
+  const wins=trades.filter(t=>t.result==='WIN').length;
+  const loss=trades.filter(t=>t.result==='LOSS').length;
+  const pnl=trades.reduce((s,t)=>s+num(t.pnl),0);
+  const rSum=trades.reduce((s,t)=>s+num(t.rmult),0);
+  const wr=(wins+loss)>0?Math.round(wins/(wins+loss)*100):0;
+  const set=(id,v,c)=>{const e=document.getElementById(id);if(e){e.textContent=v;if(c!==undefined)e.className='v '+c;}};
+  set('kTrades',trades.length);
+  set('kWins',wins);set('kLoss',loss);set('kWinrate',wr+'%');
+  set('kPnl',fmt(pnl),pnl>=0?'win':'loss');
+  set('kR',fmt(rSum)+'R',rSum>=0?'win':'loss');
+
+  // Liste, gruppiert nach Monat (neueste zuerst)
+  const list=document.getElementById('jList');list.innerHTML='';
+  if(trades.length===0){list.innerHTML='<div class="panel"><p class="small" style="margin:0">Noch keine Trades. Trag deinen ersten oben ein.</p></div>';return;}
+  const sorted=[...trades].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const groups={};
+  sorted.forEach(t=>{const m=(t.date||'').slice(0,7)||'ohne';(groups[m]=groups[m]||[]).push(t);});
+  Object.keys(groups).forEach(m=>{
+    const label=m==='ohne'?'Ohne Datum':new Date(m+'-01').toLocaleDateString('de-DE',{month:'long',year:'numeric'});
+    const mp=groups[m].reduce((s,t)=>s+num(t.pnl),0);
+    const mr=groups[m].reduce((s,t)=>s+num(t.rmult),0);
+    const h=document.createElement('div');h.className='jmonth';
+    h.innerHTML=`${label} <span class="small" style="float:right">${groups[m].length} Trades · ${fmt(mp)} · ${fmt(mr)}R</span>`;
+    list.appendChild(h);
+    const panel=document.createElement('div');panel.className='panel';panel.style.padding='6px 10px';
+    let rows='<div class="tbl-wrap"><table><tr><th>Datum</th><th>Paar</th><th>Setup</th><th>Sess</th><th>Bias</th><th>Dir</th><th>Entry</th><th>SL</th><th>TP</th><th>Lot</th><th>R</th><th>P&L</th><th>Emo</th><th>Erg.</th><th></th></tr>';
+    groups[m].forEach(t=>{
+      const cls=t.result==='WIN'?'win':t.result==='LOSS'?'loss':'';
+      rows+=`<tr>
+        <td>${(t.date||'').slice(8,10)}.${(t.date||'').slice(5,7)}.</td>
+        <td>${esc(t.pair)}</td><td style="font-size:11px">${esc(t.setup)}</td>
+        <td style="font-size:11px">${esc(t.session)}</td><td style="font-size:11px">${esc(t.bias)}</td><td>${esc(t.dir)}</td>
+        <td>${esc(t.entry)}</td><td>${esc(t.sl)}</td><td>${esc(t.tp)}</td><td>${esc(t.lot)}</td>
+        <td class="${cls}">${t.rmult?fmt(num(t.rmult))+'R':''}</td>
+        <td class="${cls}">${t.pnl?fmt(num(t.pnl)):''}</td>
+        <td>${t.emotion||''}</td>
+        <td class="${cls}">${esc(t.result)}</td>
+        <td><button class="deltrade" data-id="${t.id}">✕</button></td>
+      </tr>`;
+      if(t.note||t.tags){
+        let extra=[];
+        if(t.tags)extra.push('🏷️ '+esc(t.tags));
+        if(t.note)extra.push('📝 '+esc(t.note));
+        rows+=`<tr><td colspan="15" class="small" style="padding-top:0;color:var(--muted)">${extra.join(' &nbsp;·&nbsp; ')}</td></tr>`;
+      }
+      // Trade-Analyse (Begründung, Nachbesprechung, Chart) ausklappbar
+      if(t.reason||t.review||t.chart){
+        let an='<details style="margin:2px 0 6px"><summary style="cursor:pointer;color:var(--blue);font-size:12px">🔍 Trade-Analyse anzeigen</summary><div style="padding:8px 4px">';
+        if(t.reason)an+=`<div style="margin-bottom:8px"><b style="color:var(--gold);font-size:11px">📝 BEGRÜNDUNG / ANALYSE (PRE-TRADE)</b><p style="font-size:12.5px;margin:3px 0;white-space:pre-wrap;color:var(--muted)">${esc(t.reason)}</p></div>`;
+        if(t.review)an+=`<div style="margin-bottom:8px"><b style="color:var(--blue);font-size:11px">🔍 NACHBESPRECHUNG (POST-TRADE)</b><p style="font-size:12.5px;margin:3px 0;white-space:pre-wrap;color:var(--muted)">${esc(t.review)}</p></div>`;
+        if(t.chart)an+=`<div>${tvEmbed(t.chart)}<div class="rlink" style="margin-top:4px">${esc(t.chart)}</div></div>`;
+        an+='</div></details>';
+        rows+=`<tr><td colspan="15" style="padding-top:0">${an}</td></tr>`;
+      }
+    });
+    rows+='</table></div>';panel.innerHTML=rows;list.appendChild(panel);
+  });
+  document.querySelectorAll('.deltrade').forEach(b=>{
+    b.onclick=()=>{trades=trades.filter(t=>t.id!=b.dataset.id);saveAll();renderJournal();renderDashboard();};
+  });
+}
+
+/* ---------- CSV-EXPORT (vollständig, exakt wie Excel-Vorlage + erweitert) ---------- */
+const CSV_COLS=['date','pair','dir','setup','session','bias','entry','sl','tp','lot','pnl','rmult','emotion','result','tags','note','reason','review','chart'];
+const CSV_HEADERS=['date','pair','dir','setup','session','bias','entry','sl','tp','lot','pnl','rmult','emotion','result','tags','note','reason','review','chart'];
+document.getElementById('jExport').onclick=()=>{
+  if(trades.length===0){alert('Keine Trades zum Exportieren');return;}
+  // Sortiert nach Datum (älteste zuerst, wie Excel)
+  const sorted=[...trades].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  const esc2=v=>{v=(v==null?'':v).toString().replace(/"/g,'""');return '"'+v+'"';};
+  const rows=[CSV_HEADERS.join(';')];
+  sorted.forEach(t=>rows.push(CSV_COLS.map(c=>esc2(t[c])).join(';')));
+  const csv='\ufeff'+rows.join('\r\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='Trading-Journal-Faress-'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+};
+document.getElementById('jImport').onclick=()=>document.getElementById('jFile').click();
+document.getElementById('jFile').onchange=(e)=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const lines=r.result.replace(/^\ufeff/,'').split(/\r?\n/).filter(l=>l.trim());
+      const sep=lines[0].includes(';')?';':',';
+      const head=lines[0].split(sep).map(h=>h.replace(/"/g,'').trim());
+      const imported=lines.slice(1).map(line=>{
+        const vals=line.match(/("([^"]|"")*"|[^;,]*)/g).filter((_,i)=>i%2===0).map(v=>v.replace(/^"|"$/g,'').replace(/""/g,'"'));
+        const o={id:uid()};head.forEach((h,i)=>o[h]=vals[i]||'');return o;
+      });
+      trades=trades.concat(imported);saveAll();renderJournal();renderDashboard();
+      alert(imported.length+' Trades importiert');
+    }catch(err){alert('Import-Fehler: '+err.message);}
+  };
+  r.readAsText(f);
+};
+
+/* ============================================================
+   TradingView-URL -> Bild (Snapshot /x/) oder Fallback-Link
+   Wird in der Trade-Liste zum Einbetten der Chart-URL genutzt
+   ============================================================ */
+function tvEmbed(url){
+  if(!url) return '';
+  const snap=url.match(/tradingview\.com\/x\/([A-Za-z0-9]+)/);
+  if(snap){
+    const id=snap[1];
+    const img='https://s3.tradingview.com/snapshots/'+id.charAt(0).toLowerCase()+'/'+id+'.png';
+    return `<a href="${esc(url)}" target="_blank"><img src="${img}" class="review-embed" style="object-fit:contain" alt="TradingView Chart" onerror="this.outerHTML='<a href=&quot;${esc(url)}&quot; target=_blank class=review-thumb>\ud83d\udcfa Chart auf TradingView \u00f6ffnen (Vorschau nicht ladbar)</a>'"></a>`;
+  }
+  return `<a href="${esc(url)}" target="_blank" class="review-thumb">\ud83d\udcfa Auf TradingView \u00f6ffnen \u2192</a>`;
+}
+
+/* ===== CHECKLISTE ===== */
+const checkData=[
+  {h:'Analyse & Bias',items:[
+    ['4H/1H Trend analysiert + Bias bestimmt',true],
+    ['Asia Range (High/Low) markiert',true],
+    ['Key Levels eingezeichnet',false],
+  ]},
+  {h:'Setup',items:[
+    ['ORB definiert (09:00 / 15:30)',true],
+    ['Breakout + Retest abgewartet',true],
+    ['Price-Action-Pattern vorhanden',true],
+    ['BOS (Break of Structure) sichtbar',false],
+  ]},
+  {h:'Risiko & Ausführung',items:[
+    ['Entry, Stop, Target VOR Trade definiert',true],
+    ['CRV mindestens 1:2',true],
+    ['Max. 1% Risiko (Lot berechnet)',true],
+    ['Keine wichtigen News in 30 Min',true],
+    ['Emotional ruhig (kein FOMO/Revenge)',true],
+    ['Noch unter Max. 2 Trades heute',false],
+  ]},
+];
+const host=document.getElementById('checkHost');
+let totalChk=0,mustChk=0;
+checkData.forEach(g=>{
+  const grp=document.createElement('div');grp.className='grp';
+  grp.innerHTML=`<h4>${g.h}</h4>`;
+  const ul=document.createElement('ul');ul.className='chk';
+  g.items.forEach(([txt,must])=>{
+    totalChk++; if(must)mustChk++;
+    const li=document.createElement('li');
+    li.dataset.must=must;
+    li.innerHTML=`<span class="box">✓</span><span class="t">${txt}${must?'<span class="pflicht">PFLICHT</span>':''}</span>`;
+    li.onclick=()=>{li.classList.toggle('done');updateScore();};
+    ul.appendChild(li);
+  });
+  grp.appendChild(ul);host.appendChild(grp);
+});
+function updateScore(){
+  const done=document.querySelectorAll('.chk li.done').length;
+  const mustDone=document.querySelectorAll('.chk li.done[data-must="true"]').length;
+  document.getElementById('scoreNum').textContent=`${done} / ${totalChk}`;
+  const pct=Math.round(done/totalChk*100);
+  const fill=document.getElementById('scoreFill');
+  fill.style.width=pct+'%';
+  const v=document.getElementById('verdict');
+  if(done===totalChk){fill.style.background='var(--green)';v.textContent='✓ TRADE ERLAUBT';v.style.color='var(--green)';}
+  else if(mustDone<mustChk){fill.style.background='var(--red)';v.textContent='✗ PFLICHT-Punkt offen';v.style.color='var(--red)';}
+  else{fill.style.background='var(--amber)';v.textContent='Fast — Rest abhaken';v.style.color='var(--amber)';}
+}
+document.getElementById('resetChk').onclick=()=>{document.querySelectorAll('.chk li.done').forEach(l=>l.classList.remove('done'));updateScore();};
+updateScore();
+
+/* ===== RECHNER ===== */
+function calcLot(){
+  const acc=parseFloat(document.getElementById('acc').value)||0;
+  const risk=parseFloat(document.getElementById('risk').value)||1;
+  const sl=parseFloat(document.getElementById('sl').value)||1;
+  const pip=parseFloat(document.getElementById('inst').value);
+  const riskAmt=acc*(risk/100);
+  let lot=Math.floor((riskAmt/(sl*pip*100))*100)/100;
+  if(lot<0.01)lot=0.01;
+  const actual=lot*sl*pip*100;
+  document.getElementById('rEuro').textContent=riskAmt.toFixed(2);
+  document.getElementById('rLot').textContent=lot.toFixed(2)+' Lot';
+  const note=document.getElementById('rNote');
+  if(actual>riskAmt*1.2){
+    note.style.color='var(--red)';
+    note.textContent=`⚠️ Bei 0,01 Lot riskierst du ${actual.toFixed(2)} (${(actual/acc*100).toFixed(1)}%) — mehr als dein Ziel! Engeren SL oder größeres Konto.`;
+  }else{
+    note.style.color='var(--muted)';
+    note.textContent=`Tatsächliches Risiko bei ${lot.toFixed(2)} Lot: ${actual.toFixed(2)}`;
+  }
+}
+['acc','risk','sl','inst'].forEach(id=>document.getElementById(id).addEventListener('input',calcLot));
+calcLot();
+
+function toggleCrvMode(){
+  const mode=document.getElementById('crvMode').value;
+  document.getElementById('crvPipsRow').style.display = mode==='pips'?'':'none';
+  document.getElementById('crvPriceRows').style.display = mode==='price'?'':'none';
+  calcCRV();
+}
+function calcCRV(){
+  const mode=document.getElementById('crvMode').value;
+  const instSel=document.getElementById('crvInst');
+  const pipSize=parseFloat(instSel.options[instSel.selectedIndex].dataset.pip)||0.0001;
+  let sl=0, tp=0;
+  const note=document.getElementById('crvNote');
+
+  if(mode==='pips'){
+    sl=parseFloat(document.getElementById('crvSL').value)||1;
+    tp=parseFloat(document.getElementById('crvTP').value)||0;
+    note.textContent='';
+  } else {
+    // Preis-Modus: SL- und TP-Abstand aus Entry/SL/TP in Pips umrechnen
+    const entry=parseFloat(document.getElementById('crvEntry').value)||0;
+    const slP=parseFloat(document.getElementById('crvSLp').value)||0;
+    const tpP=parseFloat(document.getElementById('crvTPp').value)||0;
+    sl=Math.abs(entry-slP)/pipSize;
+    tp=Math.abs(tpP-entry)/pipSize;
+    note.textContent=`SL-Abstand: ${sl.toLocaleString('de-DE',{maximumFractionDigits:1})} Pips · TP-Abstand: ${tp.toLocaleString('de-DE',{maximumFractionDigits:1})} Pips`;
+  }
+  if(sl<=0)sl=1;
+  const r=tp/sl;
+  document.getElementById('crvOut').textContent='1 : '+r.toFixed(1).replace('.',',');
+  const v=document.getElementById('crvVerd');
+  if(r>=3){v.textContent='✓ Sehr gut';v.style.color='var(--green)';}
+  else if(r>=2){v.textContent='✓ OK';v.style.color='var(--green)';}
+  else{v.textContent='✗ Unter 1:2 — kein Trade!';v.style.color='var(--red)';}
+}
+document.getElementById('crvMode').addEventListener('change',toggleCrvMode);
+['crvSL','crvTP','crvInst','crvEntry','crvSLp','crvTPp','crvPosDir'].forEach(id=>document.getElementById(id).addEventListener('input',calcCRV));
+calcCRV();
+
+/* ===== GEWINN-/VERLUST-RECHNER (Pips ODER Entry/Exit-Preis) ===== */
+function togglePnlMode(){
+  const mode=document.getElementById('pnlMode').value;
+  document.getElementById('pnlPipsRow').style.display = mode==='pips'?'':'none';
+  document.getElementById('pnlPriceRows').style.display = mode==='price'?'':'none';
+  calcPnL();
+}
+function calcPnL(){
+  const lot=parseFloat(document.getElementById('pnlLot').value)||0;
+  const instSel=document.getElementById('pnlInst');
+  const pipVal=parseFloat(instSel.value); // Pip-Wert je 0,01 Lot
+  const pipSize=parseFloat(instSel.options[instSel.selectedIndex].dataset.pip)||0.0001; // Preis-Schritt je Pip
+  const mode=document.getElementById('pnlMode').value;
+
+  let pips=0, sign=1;
+  if(mode==='pips'){
+    // Modus 1: Pips direkt eingeben
+    pips=parseFloat(document.getElementById('pnlPips').value)||0;
+    if(document.getElementById('pnlDir').value==='loss')sign=-1;
+  } else {
+    // Modus 2: aus Entry- & Exit-Preis berechnen
+    const entry=parseFloat(document.getElementById('pnlEntry').value)||0;
+    const exit=parseFloat(document.getElementById('pnlExit').value)||0;
+    const pos=document.getElementById('pnlPosDir').value;
+    // Preisdifferenz in Pips: Long gewinnt wenn Exit>Entry, Short wenn Exit<Entry
+    const diff = pos==='long' ? (exit-entry) : (entry-exit);
+    pips = Math.abs(diff)/pipSize;
+    sign = diff>=0 ? 1 : -1;
+  }
+
+  let result=lot*100*pipVal*pips*sign;
+  const el=document.getElementById('pnlResult');
+  el.textContent=(result>=0?'+':'')+result.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})+' $';
+  el.style.color=result>=0?'var(--green)':'var(--red)';
+
+  // Info-Zeile: Pip-Wert + (im Preis-Modus) errechnete Pips
+  const perPip=lot*100*pipVal;
+  let info=`1 Pip/Punkt bei ${lot.toFixed(2)} Lot = ${perPip.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})} $ · bei 1,0 Lot = ${(100*pipVal).toFixed(2)} $/Pip`;
+  if(mode==='price'){
+    info = `Bewegung: ${pips.toLocaleString('de-DE',{maximumFractionDigits:1})} Pips/Punkte · ` + info;
+  }
+  document.getElementById('pnlNote').textContent=info;
+}
+document.getElementById('pnlMode').addEventListener('change',togglePnlMode);
+['pnlLot','pnlPips','pnlInst','pnlDir','pnlEntry','pnlExit','pnlPosDir'].forEach(id=>document.getElementById(id).addEventListener('input',calcPnL));
+calcPnL();
+
+/* ===== CHART-PATTERNS (realistische Liniencharts wie Original) ===== */
+const patterns={
+  bull:{title:'Bullish Patterns — steigend',cls:'bull',list:[
+    'Flag','Pennant','Cup with Handle','Ascending Triangle',
+    'Symmetrical Triangle','Measured Move Up','Ascending Scallop','3 Rising Valleys'
+  ]},
+  bear:{title:'Bearish Patterns — fallend',cls:'bear',list:[
+    'Bear Flag','Bear Pennant','Inverted Cup','Descending Triangle',
+    'Bear Symmetrical','Measured Move Down','Descending Scallop','3 Descending Peaks'
+  ]},
+  rev:{title:'Reversal Patterns — Umkehr',cls:'rev',list:[
+    'Double Bottom','Diamond Bottom','Rectangle Top','Head & Shoulders Top',
+    'Double Top','Diamond Top','Rectangle Bottom','Inverse H&S'
+  ]}
+};
+const patDE={
+  'Flag':'Flagge','Pennant':'Wimpel','Cup with Handle':'Tasse m. Henkel','Ascending Triangle':'Aufst. Dreieck',
+  'Symmetrical Triangle':'Sym. Dreieck','Measured Move Up':'Measured Move','Ascending Scallop':'Aufst. Bogen','3 Rising Valleys':'3 steigende Taeler',
+  'Bear Flag':'Flagge','Bear Pennant':'Wimpel','Inverted Cup':'Inv. Tasse','Descending Triangle':'Abst. Dreieck',
+  'Bear Symmetrical':'Sym. Dreieck','Measured Move Down':'Measured Move','Descending Scallop':'Abst. Bogen','3 Descending Peaks':'3 fallende Gipfel',
+  'Double Bottom':'Doppelboden','Diamond Bottom':'Diamant unten','Rectangle Top':'Rechteck oben','Head & Shoulders Top':'Kopf-Schulter',
+  'Double Top':'Doppeltop','Diamond Top':'Diamant oben','Rectangle Bottom':'Rechteck unten','Inverse H&S':'Inv. Kopf-Schulter'
+};
+function priceLine(pts){return `<polyline class="ppath" points="${pts.map(p=>p.join(',')).join(' ')}"/>`;}
+function sigBox(x,y,type){
+  const col=type==='Buy'?'var(--green)':'var(--red)';
+  return `<rect x="${x-13}" y="${y-9}" width="26" height="15" rx="2" fill="none" stroke="${col}" stroke-width="1.2"/><text x="${x}" y="${y+2}" text-anchor="middle" font-size="9" font-weight="700" fill="${col}">${type}</text>`;
+}
+function stopMark(x,y){return `<line x1="${x-12}" y1="${y}" x2="${x+12}" y2="${y}" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 2"/><text x="${x+14}" y="${y+3}" font-size="8" fill="var(--muted)">Stop</text>`;}
+function arrow(x1,y1,x2,y2,col){
+  const ang=Math.atan2(y2-y1,x2-x1),h=5;
+  const ax1=x2-h*Math.cos(ang-Math.PI/6),ay1=y2-h*Math.sin(ang-Math.PI/6);
+  const ax2=x2-h*Math.cos(ang+Math.PI/6),ay2=y2-h*Math.sin(ang+Math.PI/6);
+  return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="1.3"/><polygon points="${x2},${y2} ${ax1},${ay1} ${ax2},${ay2}" fill="${col}"/>`;
+}
+function patSVG(name){
+  const W=170,H=120;
+  const wrap=s=>`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">${s}</svg>`;
+  const tl='stroke:var(--muted);stroke-width:1;stroke-dasharray:4 3;fill:none';
+  let s='';
+  switch(name){
+    case 'Flag':
+      s=priceLine([[8,100],[20,88],[28,95],[40,75],[48,82],[58,58]])+`<path d="M58,52 L92,68 M62,72 L96,86" style="${tl}"/>`+priceLine([[58,58],[70,68],[80,62],[92,72],[100,66]])+arrow(100,66,135,30,'var(--green)')+sigBox(135,24,'Buy')+stopMark(95,90);break;
+    case 'Pennant':
+      s=priceLine([[8,100],[18,82],[28,90],[40,62],[50,70],[60,45]])+`<path d="M60,45 L100,60 M60,75 L100,60" style="${tl}"/>`+priceLine([[60,45],[72,68],[82,52],[92,64],[100,60]])+arrow(100,60,138,25,'var(--green)')+sigBox(138,20,'Buy')+stopMark(95,82);break;
+    case 'Cup with Handle':
+      s=`<path d="M15,30 Q60,115 105,30" class="ppath"/>`+priceLine([[105,30],[118,45],[130,32]])+arrow(130,32,152,16,'var(--green)')+sigBox(150,14,'Buy')+stopMark(120,52);break;
+    case 'Ascending Triangle':
+      s=`<line x1="25" y1="32" x2="140" y2="32" style="${tl}"/><line x1="25" y1="95" x2="135" y2="38" style="${tl}"/>`+priceLine([[25,90],[45,40],[60,70],[78,40],[95,55],[115,38],[130,42]])+arrow(132,38,152,20,'var(--green)')+sigBox(150,16,'Buy');break;
+    case 'Symmetrical Triangle':
+      s=`<line x1="25" y1="35" x2="120" y2="62" style="${tl}"/><line x1="25" y1="95" x2="120" y2="62" style="${tl}"/>`+priceLine([[25,40],[45,88],[62,48],[82,78],[100,58],[118,64]])+arrow(118,62,148,30,'var(--green)')+sigBox(148,24,'Buy');break;
+    case 'Measured Move Up':
+      s=priceLine([[10,105],[28,72],[22,82],[45,48],[55,62],[60,55],[78,68],[95,38],[88,48],[115,18]])+arrow(115,18,140,12,'var(--green)')+sigBox(140,12,'Buy')+stopMark(60,80);break;
+    case 'Ascending Scallop':
+      s=`<path d="M15,95 Q55,100 75,55 T135,22" class="ppath"/>`+arrow(135,22,152,14,'var(--green)')+sigBox(150,12,'Buy')+stopMark(70,80);break;
+    case '3 Rising Valleys':
+      s=priceLine([[10,70],[22,88],[34,60],[48,80],[60,48],[74,70],[88,32],[105,50],[120,28]])+`<line x1="34" y1="92" x2="105" y2="55" style="${tl}"/>`+arrow(120,28,145,16,'var(--green)')+sigBox(143,13,'Buy');break;
+    case 'Bear Flag':
+      s=priceLine([[8,20],[20,32],[28,25],[40,45],[48,38],[58,62]])+`<path d="M58,56 L92,42 M62,72 L96,58" style="${tl}"/>`+priceLine([[58,62],[70,52],[80,58],[92,48],[100,54]])+arrow(100,54,135,90,'var(--red)')+sigBox(135,96,'Sell')+stopMark(95,38);break;
+    case 'Bear Pennant':
+      s=priceLine([[8,20],[18,38],[28,30],[40,58],[50,50],[60,75]])+`<path d="M60,55 L100,60 M60,75 L100,60" style="${tl}"/>`+priceLine([[60,75],[72,52],[82,68],[92,56],[100,60]])+arrow(100,60,138,95,'var(--red)')+sigBox(138,100,'Sell')+stopMark(95,40);break;
+    case 'Inverted Cup':
+      s=`<path d="M15,90 Q60,5 105,90" class="ppath"/>`+priceLine([[105,90],[118,75],[130,88]])+arrow(130,88,152,104,'var(--red)')+sigBox(150,108,'Sell')+stopMark(60,30);break;
+    case 'Descending Triangle':
+      s=`<line x1="25" y1="88" x2="140" y2="88" style="${tl}"/><line x1="25" y1="25" x2="135" y2="82" style="${tl}"/>`+priceLine([[25,30],[45,80],[60,50],[78,80],[95,65],[115,82],[130,78]])+arrow(132,82,152,100,'var(--red)')+sigBox(150,104,'Sell');break;
+    case 'Bear Symmetrical':
+      s=`<line x1="25" y1="35" x2="120" y2="58" style="${tl}"/><line x1="25" y1="95" x2="120" y2="58" style="${tl}"/>`+priceLine([[25,40],[45,88],[62,48],[82,78],[100,55],[118,60]])+arrow(118,60,148,92,'var(--red)')+sigBox(148,98,'Sell');break;
+    case 'Measured Move Down':
+      s=priceLine([[10,18],[28,50],[22,40],[45,72],[55,58],[60,65],[78,52],[95,82],[88,72],[115,102]])+arrow(115,102,140,108,'var(--red)')+sigBox(140,108,'Sell')+stopMark(60,42);break;
+    case 'Descending Scallop':
+      s=`<path d="M15,25 Q55,20 75,65 T135,98" class="ppath"/>`+arrow(135,98,152,106,'var(--red)')+sigBox(150,108,'Sell')+stopMark(70,38);break;
+    case '3 Descending Peaks':
+      s=priceLine([[10,50],[22,32],[34,60],[48,40],[60,72],[74,50],[88,88],[105,70],[120,92]])+`<line x1="34" y1="28" x2="105" y2="65" style="${tl}"/>`+arrow(120,92,145,104,'var(--red)')+sigBox(143,107,'Sell');break;
+    case 'Double Bottom':
+      s=priceLine([[12,28],[30,40],[45,82],[60,55],[78,82],[95,42],[112,30]])+`<line x1="45" y1="86" x2="78" y2="86" style="${tl}"/>`+arrow(112,30,140,16,'var(--green)')+sigBox(140,13,'Buy');break;
+    case 'Diamond Bottom':
+      s=priceLine([[10,40],[25,55],[18,48],[38,72],[55,52],[40,60],[58,82],[75,58],[68,66],[88,46]])+arrow(88,46,135,22,'var(--green)')+sigBox(135,18,'Buy')+stopMark(58,86);break;
+    case 'Rectangle Top':
+      s=`<line x1="25" y1="30" x2="115" y2="30" style="${tl}"/><line x1="25" y1="72" x2="115" y2="72" style="${tl}"/>`+priceLine([[25,50],[42,30],[58,72],[75,30],[92,72],[108,68]])+arrow(108,72,140,98,'var(--red)')+sigBox(138,102,'Sell');break;
+    case 'Head & Shoulders Top':
+      s=priceLine([[8,70],[22,45],[36,62],[52,25],[72,62],[88,42],[104,68],[120,88]])+`<line x1="36" y1="64" x2="104" y2="70" style="${tl}"/>`+arrow(120,88,144,102,'var(--red)')+sigBox(142,106,'Sell');break;
+    case 'Double Top':
+      s=priceLine([[12,92],[30,78],[45,38],[60,65],[78,38],[95,76],[112,90]])+`<line x1="45" y1="34" x2="78" y2="34" style="${tl}"/>`+arrow(112,90,140,104,'var(--red)')+sigBox(138,107,'Sell');break;
+    case 'Diamond Top':
+      s=priceLine([[10,80],[25,65],[18,72],[38,48],[55,68],[40,60],[58,38],[75,62],[68,54],[88,74]])+arrow(88,74,135,98,'var(--red)')+sigBox(135,102,'Sell')+stopMark(58,34);break;
+    case 'Rectangle Bottom':
+      s=`<line x1="25" y1="35" x2="115" y2="35" style="${tl}"/><line x1="25" y1="78" x2="115" y2="78" style="${tl}"/>`+priceLine([[25,58],[42,78],[58,35],[75,78],[92,35],[108,40]])+arrow(108,35,140,18,'var(--green)')+sigBox(138,14,'Buy');break;
+    case 'Inverse H&S':
+      s=priceLine([[8,45],[22,68],[36,52],[52,90],[72,52],[88,72],[104,46],[120,28]])+`<line x1="36" y1="50" x2="104" y2="44" style="${tl}"/>`+arrow(120,28,144,15,'var(--green)')+sigBox(142,12,'Buy');break;
+    default:
+      s=priceLine([[10,90],[50,55],[90,70],[130,30]]);
+  }
+  return wrap(s);
+}
+const patHost=document.getElementById('patHost');
+Object.values(patterns).forEach(cat=>{
+  const h=document.createElement('div');h.className='patcat '+cat.cls;h.textContent=cat.title;
+  patHost.appendChild(h);
+  const grid=document.createElement('div');grid.className='patgrid';
+  cat.list.forEach(en=>{
+    const box=document.createElement('div');box.className='patbox';
+    box.innerHTML=patSVG(en)+`<div class="pname">${patDE[en]||en}</div>`;
+    grid.appendChild(box);
+  });
+  patHost.appendChild(grid);
+});
+
+/* ===== PAARE-ÜBERSICHT ===== */
+const pairsData=[
+  {n:'Gold (XAUUSD)',fit:5,sess:'London + NY',time:'09:00 / 15:30',vol:'Hoch',lot:'0,01',note:'Dein Kern-Asset. Klare Bewegungen, ideal für ORB.'},
+  {n:'GBPUSD',fit:4,sess:'London Open',time:'09:00',vol:'Mittel-Hoch',lot:'0,03',note:'Liquide, sauber, reagiert stark auf London Open.'},
+  {n:'EURUSD',fit:4,sess:'London + NY',time:'09:00 / 15:30',vol:'Mittel',lot:'0,04',note:'Engste Spreads, ruhiger — gut für Anfänger.'},
+  {n:'GBPJPY',fit:4,sess:'London Open',time:'09:00',vol:'Sehr Hoch',lot:'0,01',note:'„Der Drache" — sehr volatil, große Moves, enge Stops schwer.'},
+  {n:'USDJPY',fit:3,sess:'Asia + NY',time:'09:00 / 15:30',vol:'Mittel',lot:'0,01',note:'Reagiert auf US-Daten + BoJ. Asia-Session aktiv.'},
+  {n:'EURJPY',fit:3,sess:'London',time:'09:00',vol:'Hoch',lot:'0,01',note:'JPY-Cross, volatil. Kombiniert EUR- und JPY-Bewegung.'},
+  {n:'CADJPY',fit:3,sess:'London + NY',time:'09:00 / 15:30',vol:'Hoch',lot:'0,01',note:'Öl-korreliert (CAD). JPY macht es volatil.'},
+  {n:'AUDUSD',fit:3,sess:'Asia',time:'02:00',vol:'Mittel',lot:'0,03',note:'Rohstoff-Währung, China-abhängig. Asia-Session.'},
+  {n:'NZDUSD',fit:3,sess:'Asia',time:'02:00',vol:'Mittel',lot:'0,03',note:'Ähnlich AUD, etwas dünner. Asia-Session.'},
+  {n:'USDCAD',fit:3,sess:'NY Open',time:'15:30',vol:'Mittel',lot:'0,03',note:'Stark öl-korreliert. Beste Zeit NY-Session.'},
+  {n:'USDCHF',fit:3,sess:'London',time:'09:00',vol:'Mittel',lot:'0,03',note:'„Safe Haven". Oft invers zu EURUSD.'},
+  {n:'EURGBP',fit:2,sess:'London',time:'09:00',vol:'Niedrig',lot:'0,04',note:'Sehr ruhig, enge Range. Schwer für Breakouts.'},
+  {n:'EURAUD',fit:2,sess:'London',time:'09:00',vol:'Hoch',lot:'0,02',note:'Cross-Paar, volatil. Für Fortgeschrittene.'},
+  {n:'EURCAD',fit:2,sess:'London + NY',time:'09:00 / 15:30',vol:'Mittel-Hoch',lot:'0,02',note:'Cross-Paar, öl-Einfluss über CAD.'},
+  {n:'GBPAUD',fit:2,sess:'London',time:'09:00',vol:'Sehr Hoch',lot:'0,01',note:'Extrem volatil. Große Stops nötig — Vorsicht!'},
+  {n:'GBPNZD',fit:2,sess:'London',time:'09:00',vol:'Sehr Hoch',lot:'0,01',note:'Eines der volatilsten Paare. Nur für Profis.'},
+  {n:'GBPCAD',fit:2,sess:'London + NY',time:'09:00 / 15:30',vol:'Hoch',lot:'0,01',note:'Volatil, öl-Einfluss. Große Bewegungen.'},
+  {n:'GBPCHF',fit:2,sess:'London',time:'09:00',vol:'Hoch',lot:'0,02',note:'Volatil trotz CHF. Für Fortgeschrittene.'},
+  {n:'AUDNZD',fit:2,sess:'Asia',time:'02:00',vol:'Niedrig-Mittel',lot:'0,03',note:'Range-Paar, oft seitwärts. Schwer für ORB.'},
+  {n:'AUDCAD',fit:2,sess:'Asia + NY',time:'02:00 / 15:30',vol:'Mittel',lot:'0,03',note:'Zwei Rohstoff-Währungen. Eher ruhig.'},
+  {n:'NZDCAD',fit:2,sess:'Asia + NY',time:'02:00 / 15:30',vol:'Niedrig-Mittel',lot:'0,03',note:'Exotischeres Cross. Dünnere Liquidität.'}
+];
+const pairsHost=document.getElementById('pairsHost');
+function stars(n){return '★'.repeat(n)+'☆'.repeat(5-n);}
+function fitColor(n){return n>=4?'var(--green)':n===3?'var(--amber)':'var(--muted)';}
+const pPanel=document.createElement('div');pPanel.className='panel';pPanel.style.padding='6px 10px';
+let pRows='<table><tr><th>Paar</th><th>Eignung</th><th>Session</th><th>Zeit (MESZ)</th><th>Vola</th><th>Lot*</th></tr>';
+pairsData.forEach(p=>{
+  pRows+=`<tr>
+    <td style="font-weight:600">${p.n}</td>
+    <td style="color:${fitColor(p.fit)}">${stars(p.fit)}</td>
+    <td>${p.sess}</td><td>${p.time}</td><td>${p.vol}</td>
+    <td style="color:var(--gold);font-weight:600">${p.lot}</td>
+  </tr>
+  <tr><td colspan="6" class="small" style="padding-top:0;color:var(--muted)">${p.note}</td></tr>`;
+});
+pRows+='</table>';pPanel.innerHTML=pRows;pairsHost.appendChild(pPanel);
+const pHint=document.createElement('p');pHint.className='small';
+pHint.textContent='*Lot-Richtwert bei 1.000$ Konto, 1% Risiko, ~20-30 Pips Stop. Genau im Rechner-Tab berechnen.';
+pairsHost.appendChild(pHint);
+
+
+/* ============================================================
+   DASHBOARD: Statistiken, Charts, Heatmap, Monats-Tabelle
+   ============================================================ */
+function renderDashboard(){
+  const closed=trades.filter(t=>t.result&&t.result!=='BE');
+  const wins=trades.filter(t=>t.result==='WIN');
+  const losses=trades.filter(t=>t.result==='LOSS');
+  const wr=closed.length?Math.round(wins.length/closed.length*100):0;
+  const totalPnl=trades.reduce((s,t)=>s+num(t.pnl),0);
+  const rArr=trades.filter(t=>t.rmult).map(t=>num(t.rmult));
+  const avgR=rArr.length?(rArr.reduce((a,b)=>a+b,0)/rArr.length):0;
+  const avgWin=wins.length?wins.reduce((s,t)=>s+num(t.pnl),0)/wins.length:0;
+  const avgLoss=losses.length?losses.reduce((s,t)=>s+num(t.pnl),0)/losses.length:0;
+  const pf=avgLoss!==0?Math.abs(wins.reduce((s,t)=>s+num(t.pnl),0)/(losses.reduce((s,t)=>s+num(t.pnl),0)||1)):0;
+  // Max Drawdown berechnen
+  let eq=num(cfg.capital),peak=eq,maxDD=0;
+  [...trades].sort((a,b)=>(a.date||'').localeCompare(b.date||'')).forEach(t=>{eq+=num(t.pnl);if(eq>peak)peak=eq;const dd=peak-eq;if(dd>maxDD)maxDD=dd;});
+  const ddPct=peak>0?(maxDD/peak*100):0;
+
+  const cur=cfg.currency||'$';
+  const kpis=[
+    {v:trades.length,l:'Trades',c:'var(--txt)'},
+    {v:wr+'%',l:'Win-Rate',c:wr>=50?'var(--green)':'var(--red)'},
+    {v:fmt(totalPnl)+cur,l:'Gesamt P&L',c:totalPnl>=0?'var(--green)':'var(--red)'},
+    {v:avgR.toFixed(2)+'R',l:'Ø RRR',c:'var(--gold)'},
+    {v:wins.length,l:'Wins',c:'var(--green)'},
+    {v:losses.length,l:'Losses',c:'var(--red)'},
+    {v:pf.toFixed(2),l:'Profit-Faktor',c:'var(--blue)'},
+    {v:'-'+maxDD.toFixed(0)+cur,l:'Max Drawdown',c:'var(--red)'},
+  ];
+  document.getElementById('dashKpis').innerHTML=kpis.map(k=>`<div class="kpi"><div class="v" style="color:${k.c}">${k.v}</div><div class="l">${k.l}</div></div>`).join('');
+
+  drawEquity(); drawWinrate(wins.length,losses.length,trades.filter(t=>t.result==='BE').length);
+  drawDrawdown(); renderHeatmap(); renderMonthTable(); renderSetupSessionStats();
+}
+
+/* ----- Equity-Kurve (Canvas) ----- */
+function drawEquity(){
+  const c=document.getElementById('equityCanvas');if(!c)return;
+  const ctx=c.getContext('2d');const W=c.width=c.offsetWidth*2;const H=c.height=440;ctx.scale(2,2);
+  const w=c.offsetWidth,h=220;ctx.clearRect(0,0,w,h);
+  const sorted=[...trades].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  let eq=num(cfg.capital);const pts=[eq];
+  sorted.forEach(t=>{eq+=num(t.pnl);pts.push(eq);});
+  if(pts.length<2){ctx.fillStyle='#8b949e';ctx.font='13px sans-serif';ctx.textAlign='center';ctx.fillText('Noch keine P&L-Daten — trage Trades ein',w/2,h/2);return;}
+  const min=Math.min(...pts),max=Math.max(...pts),pad=24,range=(max-min)||1;
+  const px=i=>pad+i/(pts.length-1)*(w-pad*2);
+  const py=v=>h-pad-(v-min)/range*(h-pad*2);
+  // Grid
+  ctx.strokeStyle='#2a3441';ctx.lineWidth=.5;
+  for(let i=0;i<=4;i++){const y=pad+i/4*(h-pad*2);ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(w-pad,y);ctx.stroke();}
+  // Startkapital-Linie
+  ctx.strokeStyle='#8b949e';ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(pad,py(num(cfg.capital)));ctx.lineTo(w-pad,py(num(cfg.capital)));ctx.stroke();ctx.setLineDash([]);
+  const pos=pts[pts.length-1]>=pts[0];
+  // Fläche
+  const grad=ctx.createLinearGradient(0,pad,0,h-pad);
+  grad.addColorStop(0,pos?'rgba(63,185,80,.3)':'rgba(248,81,73,.3)');grad.addColorStop(1,'rgba(28,37,48,0)');
+  ctx.beginPath();ctx.moveTo(px(0),h-pad);pts.forEach((v,i)=>ctx.lineTo(px(i),py(v)));ctx.lineTo(px(pts.length-1),h-pad);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
+  // Linie
+  ctx.beginPath();ctx.strokeStyle=pos?'#3fb950':'#f85149';ctx.lineWidth=2;pts.forEach((v,i)=>i?ctx.lineTo(px(i),py(v)):ctx.moveTo(px(i),py(v)));ctx.stroke();
+  // Labels
+  ctx.fillStyle='#8b949e';ctx.font='10px sans-serif';ctx.textAlign='left';
+  ctx.fillText(max.toFixed(0)+(cfg.currency||'$'),pad+2,pad+9);
+  ctx.fillText(min.toFixed(0)+(cfg.currency||'$'),pad+2,h-pad-3);
+}
+
+/* ----- Win-Rate Donut ----- */
+function drawWinrate(w,l,be){
+  const c=document.getElementById('winrateCanvas');if(!c)return;
+  const ctx=c.getContext('2d');c.width=c.offsetWidth*2;c.height=360;ctx.scale(2,2);
+  const W=c.offsetWidth,H=180,cx=W/2,cy=H/2,r=62;ctx.clearRect(0,0,W,H);
+  const total=w+l+be;
+  if(total===0){ctx.fillStyle='#8b949e';ctx.font='13px sans-serif';ctx.textAlign='center';ctx.fillText('Keine Daten',cx,cy);return;}
+  const segs=[[w,'#3fb950'],[l,'#f85149'],[be,'#8b949e']];
+  let a=-Math.PI/2;
+  segs.forEach(([v,col])=>{if(v===0)return;const ang=v/total*Math.PI*2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a,a+ang);ctx.closePath();ctx.fillStyle=col;ctx.fill();a+=ang;});
+  // Loch
+  ctx.beginPath();ctx.arc(cx,cy,r*0.6,0,Math.PI*2);ctx.fillStyle='#161b22';ctx.fill();
+  ctx.fillStyle='#e6edf3';ctx.font='bold 22px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(Math.round(w/(w+l||1)*100)+'%',cx,cy-4);
+  ctx.fillStyle='#8b949e';ctx.font='10px sans-serif';ctx.fillText('Win-Rate',cx,cy+12);
+  // Legende
+  ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.font='11px sans-serif';
+  ctx.fillStyle='#3fb950';ctx.fillText('● '+w+' Wins',W-78,40);
+  ctx.fillStyle='#f85149';ctx.fillText('● '+l+' Losses',W-78,56);
+  ctx.fillStyle='#8b949e';ctx.fillText('● '+be+' BE',W-78,72);
+}
+
+/* ----- Drawdown-Verlauf ----- */
+function drawDrawdown(){
+  const c=document.getElementById('drawdownCanvas');if(!c)return;
+  const ctx=c.getContext('2d');c.width=c.offsetWidth*2;c.height=360;ctx.scale(2,2);
+  const w=c.offsetWidth,h=180;ctx.clearRect(0,0,w,h);
+  const sorted=[...trades].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  let eq=num(cfg.capital),peak=eq;const dd=[0];
+  sorted.forEach(t=>{eq+=num(t.pnl);if(eq>peak)peak=eq;dd.push(peak-eq);});
+  if(dd.length<2){ctx.fillStyle='#8b949e';ctx.font='13px sans-serif';ctx.textAlign='center';ctx.fillText('Keine Daten',w/2,h/2);return;}
+  const maxDD=Math.max(...dd,1),pad=24;
+  const px=i=>pad+i/(dd.length-1)*(w-pad*2);
+  const py=v=>pad+v/maxDD*(h-pad*2);
+  ctx.strokeStyle='#2a3441';ctx.lineWidth=.5;
+  for(let i=0;i<=3;i++){const y=pad+i/3*(h-pad*2);ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(w-pad,y);ctx.stroke();}
+  const grad=ctx.createLinearGradient(0,pad,0,h-pad);grad.addColorStop(0,'rgba(248,81,73,.35)');grad.addColorStop(1,'rgba(28,37,48,0)');
+  ctx.beginPath();ctx.moveTo(px(0),pad);dd.forEach((v,i)=>ctx.lineTo(px(i),py(v)));ctx.lineTo(px(dd.length-1),pad);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
+  ctx.beginPath();ctx.strokeStyle='#f85149';ctx.lineWidth=2;dd.forEach((v,i)=>i?ctx.lineTo(px(i),py(v)):ctx.moveTo(px(i),py(v)));ctx.stroke();
+  ctx.fillStyle='#8b949e';ctx.font='10px sans-serif';ctx.textAlign='left';
+  ctx.fillText('Max: -'+maxDD.toFixed(0)+(cfg.currency||'$'),pad+2,h-pad+14);
+}
+
+/* ----- Kalender-Heatmap ----- */
+function renderHeatmap(){
+  const dayMap={};
+  trades.forEach(t=>{if(!t.date)return;dayMap[t.date]=(dayMap[t.date]||0)+num(t.pnl);});
+  const days=Object.keys(dayMap).sort();
+  const wrap=document.getElementById('heatmapWrap');
+  if(!days.length){wrap.innerHTML='<p class="small" style="margin:0">Keine Trade-Daten</p>';return;}
+  // Wochentags-Header
+  let html='<div class="heatmap">';
+  ['Mo','Di','Mi','Do','Fr','Sa','So'].forEach(d=>html+=`<div class="small" style="text-align:center;color:var(--muted)">${d}</div>`);
+  // Erster Tag -> Wochentag-Offset
+  const first=new Date(days[0]);let offset=(first.getDay()+6)%7;
+  const last=new Date(days[days.length-1]);
+  for(let i=0;i<offset;i++)html+='<div class="hm-cell hm-empty"></div>';
+  let cur=new Date(first);
+  while(cur<=last){
+    const ds=cur.toISOString().slice(0,10);const v=dayMap[ds];
+    let cls='hm-empty',title=ds+': kein Trade';
+    if(v!==undefined){
+      if(v>0)cls=v>=100?'hm-win-big':'hm-win';
+      else if(v<0)cls=Math.abs(v)>=100?'hm-loss-big':'hm-loss';
+      else cls='hm-be';
+      title=ds+': '+fmt(v)+(cfg.currency||'$');
+    }
+    html+=`<div class="hm-cell ${cls}" title="${title}"></div>`;
+    cur.setDate(cur.getDate()+1);
+  }
+  html+='</div>';wrap.innerHTML=html;
+}
+
+/* ----- Monats-Tabelle (wie Excel-Vorlage) ----- */
+function renderMonthTable(){
+  const groups={};
+  trades.forEach(t=>{const m=(t.date||'').slice(0,7);if(!m)return;(groups[m]=groups[m]||[]).push(t);});
+  const body=document.getElementById('monthTblBody');
+  const months=Object.keys(groups).sort();
+  if(!months.length){body.innerHTML='<tr><td colspan="8" class="small">Keine Daten</td></tr>';return;}
+  const targetPct=num(cfg.target)||8;const targetAbs=num(cfg.capital)*targetPct/100;
+  body.innerHTML=months.map(m=>{
+    const ts=groups[m];
+    const w=ts.filter(t=>t.result==='WIN').length;
+    const l=ts.filter(t=>t.result==='LOSS').length;
+    const wr=(w+l)>0?Math.round(w/(w+l)*100):0;
+    const rArr=ts.filter(t=>t.rmult).map(t=>num(t.rmult));
+    const avgR=rArr.length?(rArr.reduce((a,b)=>a+b,0)/rArr.length):0;
+    const pnl=ts.reduce((s,t)=>s+num(t.pnl),0);
+    const label=new Date(m+'-01').toLocaleDateString('de-DE',{month:'short',year:'2-digit'});
+    const hit=pnl>=targetAbs;
+    const status=hit?'<span class="win">✅ Ziel</span>':pnl>=0?'<span style="color:var(--amber)">➖ unter Ziel</span>':'<span class="loss">❌ Minus</span>';
+    return `<tr><td><b>${label}</b></td><td>${ts.length}</td><td class="win">${w}</td><td class="loss">${l}</td><td>${wr}%</td><td style="color:var(--gold)">${avgR.toFixed(2)}R</td><td class="${pnl>=0?'win':'loss'}">${fmt(pnl)}${cfg.currency||'$'}</td><td>${status}</td></tr>`;
+  }).join('');
+}
+
+/* ----- Setup- & Session-Statistik ----- */
+function renderSetupSessionStats(){
+  const bySetup={},bySession={};
+  trades.forEach(t=>{
+    if(t.setup){bySetup[t.setup]=bySetup[t.setup]||{w:0,l:0};if(t.result==='WIN')bySetup[t.setup].w++;else if(t.result==='LOSS')bySetup[t.setup].l++;}
+    if(t.session){bySession[t.session]=bySession[t.session]||{w:0,l:0};if(t.result==='WIN')bySession[t.session].w++;else if(t.result==='LOSS')bySession[t.session].l++;}
+  });
+  const rowsFor=obj=>{const k=Object.keys(obj);if(!k.length)return '<p class="small" style="margin:0">Keine Daten</p>';
+    return k.sort((a,b)=>(obj[b].w+obj[b].l)-(obj[a].w+obj[a].l)).map(name=>{const v=obj[name];const tot=v.w+v.l;const wr=tot?Math.round(v.w/tot*100):0;
+      return `<div class="stat-row"><span class="label">${esc(name)}</span><span class="val"><span class="win">${v.w}W</span> <span class="loss">${v.l}L</span> · <span style="color:var(--gold)">${wr}%</span></span></div>`;}).join('');};
+  document.getElementById('setupStats').innerHTML=rowsFor(bySetup);
+  document.getElementById('sessionStats').innerHTML=rowsFor(bySession);
+}
+
+/* ============================================================
+   EINSTELLUNGEN + BACKUP (Export/Import/Reset)
+   ============================================================ */
+function loadConfig(){
+  document.getElementById('cfgName').value=cfg.name||'';
+  document.getElementById('cfgCapital').value=cfg.capital||'';
+  document.getElementById('cfgCurrency').value=cfg.currency||'$';
+  document.getElementById('cfgMaxrisk').value=cfg.maxrisk||'';
+  document.getElementById('cfgTarget').value=cfg.target||'';
+}
+document.getElementById('cfgSave').onclick=()=>{
+  cfg.name=document.getElementById('cfgName').value;
+  cfg.capital=num(document.getElementById('cfgCapital').value)||1000;
+  cfg.currency=document.getElementById('cfgCurrency').value;
+  cfg.maxrisk=num(document.getElementById('cfgMaxrisk').value)||1;
+  cfg.target=num(document.getElementById('cfgTarget').value)||8;
+  saveAll();
+  const m=document.getElementById('cfgMsg');m.textContent='✅ Gespeichert!';setTimeout(()=>m.textContent='',3000);
+  renderDashboard();
+};
+/* JSON-Komplett-Backup */
+document.getElementById('expJson').onclick=()=>{
+  const data={trades,cfg,exported:new Date().toISOString(),version:5};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='Trading-Cockpit-Backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();
+  markExported(); // Zähler zurücksetzen
+};
+/* CSV (gleiche Funktion wie im Journal) */
+document.getElementById('expCsv').onclick=()=>document.getElementById('jExport').click();
+/* JSON-Import */
+const dz=document.getElementById('dropZone');
+document.getElementById('impJson').onchange=e=>doImport(e.target.files[0]);
+dz.onclick=()=>document.getElementById('impJson').click();
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');if(e.dataTransfer.files[0])doImport(e.dataTransfer.files[0]);});
+function doImport(file){
+  if(!file)return;const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);
+    if(!confirm(`Import: ${d.trades?.length||0} Trades.\nWird zu vorhandenen Daten hinzugefügt.`))return;
+    if(d.trades)trades=trades.concat(d.trades.filter(nt=>!trades.find(t=>t.id===nt.id)));
+    if(d.cfg)Object.assign(cfg,d.cfg);
+    saveAll();renderDashboard();renderJournal();loadConfig();
+    alert('✅ Import erfolgreich!');
+  }catch(err){alert('❌ Ungültige JSON-Datei: '+err.message);}};
+  r.readAsText(file);
+}
+document.getElementById('resetAll').onclick=()=>{
+  if(prompt('Tippe LÖSCHEN um ALLE Daten zu entfernen:')!=='LÖSCHEN')return;
+  trades=[];saveAll();
+  renderDashboard();renderJournal();
+  alert('Alle Daten gelöscht.');
+};
+
+/* ============================================================
+   MOTIVATIONS-LEISTE (rotiert alle paar Sekunden)
+   ============================================================ */
+const quotes=[
+  '"Discipline Today, Freedom Tomorrow."',
+  '"I don\'t predict, I prepare. I don\'t hope, I execute."',
+  '"Geduld ist meine Waffe. Der Markt kommt zu mir."',
+  '"Small Loss is Okay, Big Loss is Not."',
+  '"Be Consistent, Not Intelligent."',
+  '"Trading is a Marathon, Not a Sprint."',
+  '"Protect Capital, It Is Fuel."',
+  '"One good trade at a time."',
+  '"Plan the trade. Trade the plan."',
+  '"No Revenge Trading. Computer aus."',
+  '"Quality over Quantity — max. 2 Trades."',
+  '"First learn, then earn."',
+  '"Wait for confirmation, then enter."',
+  '"Accept Loss, Don\'t Hope."',
+  '"Focus on Process, Not on P&L."'
+];
+let qi=0;const mt=document.getElementById('motText');
+setInterval(()=>{qi=(qi+1)%quotes.length;mt.style.opacity=0;setTimeout(()=>{mt.textContent=quotes[qi];mt.style.opacity=1;},400);},5000);
+
+/* ============================================================
+   INIT — beim Laden alles wiederherstellen
+   ============================================================ */
+window.addEventListener('resize',()=>{if(document.getElementById('dashboard').classList.contains('active'))renderDashboard();});
+loadConfig();
+renderDashboard();
+renderJournal();
+checkExportReminder(); // beim Laden prüfen ob Backup überfällig
+
+</script>
+</body>
+</html>
